@@ -21,7 +21,6 @@ startBtn.addEventListener("click", () => {
 });
 
 let currentHeading = 0;
-
 function handleOrientation(event) {
   let heading;
 
@@ -37,29 +36,23 @@ function handleOrientation(event) {
   let diff = heading - currentHeading;
   diff = ((diff + 180) % 360) - 180;
   
+  // 異常値カット
+  if (Math.abs(diff) > 90) {
+    return; // 無視
+  }
+  // 微小揺れもカット
+  if (Math.abs(diff) < 0.5) {
+    return;
+  }
+
   //一回に移動する角度制限
   const maxStep = 3;
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
   currentHeading += diff;
 
-  // 異常値カット
-  if (Math.abs(diff) > 90) {
-    return; // 無視
-  }
-
-  // 微小揺れもカット
-  if (Math.abs(diff) < 1) {
-    return;
-  }
-
-  // 差が大きすぎたら無視
-  if (Math.abs(diff) < 40) {
-    currentHeading += diff * 0.1;
-  }
-  currentHeading = (currentHeading + 360) % 360;                //角度を0~360°に
-  currentHeading += (heading - currentHeading) * 0.1;           //滑らかに
-  compass.style.transform = `rotate(${-currentHeading}deg)`;    //回転
+  currentHeading = (currentHeading + 360) % 360;              //角度を0~360°に
+  compass.style.transform = `rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
