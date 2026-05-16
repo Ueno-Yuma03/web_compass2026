@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Compass</title>
+    <style>
+        .circle {
+          width:  350px;
+          height: 350px;
+          background-color: white;
+          border: 5px solid black; /* 枠線 */
+          border-radius: 50%;
+          display: flex;              /* 中央寄せ用 */
+          align-items: center;        /* 縦方向中央 */
+          justify-content: center;    /* 横方向中央 */
+          font-size: 15px;
+          font-weight: bold;
+          margin: 50px auto;
+}
+        #compass {
+          width: 200px;
+          transition: transform 0.2s linear;
+        }
+</style>
+</head>
+<body>
+<div style="text-align: center;">
+    <p>WEBコンパス</p>
+</div>
+<button id="start">許可して開始</button>
+<script src="app.js" defer></script>
+<div class="circle"></div>
+</body>
+</html>
