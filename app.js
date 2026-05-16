@@ -36,10 +36,22 @@ function handleOrientation(event) {
   let diff = heading - currentHeading;
   diff = ((diff + 540) % 360) - 180;
   
+  
+  // ここが超重要：異常値カット
+  if (Math.abs(diff) > 90) {
+    return; // 無視
+  }
+
+  // 微小揺れもカット
+  if (Math.abs(diff) < 1) {
+    return;
+  }
+
   // 差が大きすぎたら無視
   if (Math.abs(diff) < 40) {
     currentHeading += diff * 0.1;
   }
+  
   currentHeading += (heading - currentHeading) * 0.1;           //滑らかに
   compass.style.transform = `rotate(${-currentHeading}deg)`;    //回転
 }
