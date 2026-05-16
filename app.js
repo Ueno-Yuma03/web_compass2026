@@ -36,10 +36,6 @@ function handleOrientation(event) {
   let diff = heading - currentHeading;
   diff = ((diff + 180) % 360) - 180;
   
-  // 異常値カット
-  if (Math.abs(diff) > 90) {
-    return; // 無視
-  }
   // 微小揺れもカット
   if (Math.abs(diff) < 0.5) {
     return;
