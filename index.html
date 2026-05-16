@@ -17,10 +17,45 @@
           font-size: 15px;
           font-weight: bold;
           margin: 50px auto;
-}
+        }
+
         #compass {
           width: 200px;
         }
+
+        .arrow{
+          position: absolute;
+          width: 12px;
+          height: 180px;
+          background: linear-gradient(to top, red 50%, white 50%);
+          top: 50%;
+          left: 50%;
+          transform-origin: bottom center;
+          transform: translate(-50%, -100%);
+          border-radius: 3px;
+        }
+        
+        .arrow::after {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 10px;
+          height: 10px;
+          background: black;
+          border-radius: 50%;
+        }
+
+        .label {
+          position: absolute;
+          font-weight: bold;
+        }
+        .north { top: 10px; left: 50%; transform: translateX(-50%); }
+        .south { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .east  { right: 10px; top: 50%; transform: translateY(-50%); }
+        .west  { left: 10px; top: 50%; transform: translateY(-50%); }
+
 </style>
 </head>
 <body>
@@ -31,6 +66,10 @@
 <p id="ang_val"></p>
 <div class="circle">
   <img id="compass" src="compass.png">
+<div class="label north">N</div>
+<div class="label south">S</div>
+<div class="label east">E</div>
+<div class="label west">W</div>
 <script src="app.js" defer></script>
 </div>
 </body>
