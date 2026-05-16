@@ -35,9 +35,14 @@ function handleOrientation(event) {
 
   // 差を正しく計算（-180〜180にする）
   let diff = heading - currentHeading;
-  diff = ((diff + 540) % 360) - 180;
+  diff = ((diff + 180) % 360) - 180;
   
-  
+  //一回に移動する角度制限
+  const maxStep = 3;
+  if (diff > maxStep) diff = maxStep;
+  if (diff < -maxStep) diff = -maxStep;
+  currentHeading += diff;
+
   // 異常値カット
   if (Math.abs(diff) > 90) {
     return; // 無視
@@ -52,7 +57,7 @@ function handleOrientation(event) {
   if (Math.abs(diff) < 40) {
     currentHeading += diff * 0.1;
   }
-  
+  currentHeading = (currentHeading + 360) % 360;                //角度を0~360°に
   currentHeading += (heading - currentHeading) * 0.1;           //滑らかに
   compass.style.transform = `rotate(${-currentHeading}deg)`;    //回転
 
