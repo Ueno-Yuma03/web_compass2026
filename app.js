@@ -32,14 +32,14 @@ function handleOrientation(event) {
     heading = 360 - event.alpha;
   }
 
+  // 差を正しく計算（-180〜180にする）
   let diff = heading - currentHeading;
+  diff = ((diff + 540) % 360) - 180;
   
   // 差が大きすぎたら無視
-  if (Math.abs(diff) < 50) {
+  if (Math.abs(diff) < 40) {
     currentHeading += diff * 0.1;
   }
-  // 回転
-  currentHeading += (heading - currentHeading) * 0.1;
-  compass.style.transform = `rotate(${-currentHeading}deg)`;
-
+  currentHeading += (heading - currentHeading) * 0.1;           //滑らかに
+  compass.style.transform = `rotate(${-currentHeading}deg)`;    //回転
 }
