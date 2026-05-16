@@ -1,5 +1,6 @@
 const compass = document.getElementById("compass");
 const startBtn = document.getElementById("start");
+const ang_val = document.getElementById("ang_val");
 
 startBtn.addEventListener("click", () => {
 
@@ -37,7 +38,7 @@ function handleOrientation(event) {
   diff = ((diff + 540) % 360) - 180;
   
   
-  // ここが超重要：異常値カット
+  // 異常値カット
   if (Math.abs(diff) > 90) {
     return; // 無視
   }
@@ -54,4 +55,10 @@ function handleOrientation(event) {
   
   currentHeading += (heading - currentHeading) * 0.1;           //滑らかに
   compass.style.transform = `rotate(${-currentHeading}deg)`;    //回転
+
+  ang_val.textContent = `
+    方角: ${heading.toFixed(1)}
+    現在の方角: ${currentHeading.toFixed(1)}
+    角度差: ${diff.toFixed(1)}
+    `;
 }
