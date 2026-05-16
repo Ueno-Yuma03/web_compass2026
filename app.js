@@ -19,6 +19,8 @@ startBtn.addEventListener("click", () => {
 
 });
 
+let currentHeading = 0;
+
 function handleOrientation(event) {
   let heading;
 
@@ -30,6 +32,14 @@ function handleOrientation(event) {
     heading = 360 - event.alpha;
   }
 
+  let diff = heading - currentHeading;
+  
+  // 差が大きすぎたら無視
+  if (Math.abs(diff) < 50) {
+    currentHeading += diff * 0.1;
+  }
   // 回転
-  compass.style.transform = `rotate(${-heading}deg)`;
+  currentHeading += (heading - currentHeading) * 0.1;
+  compass.style.transform = `rotate(${-currentHeading}deg)`;
+
 }
