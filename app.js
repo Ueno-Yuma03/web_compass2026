@@ -25,11 +25,13 @@ function handleOrientation(event) {
   let heading;
 
   // iOS
-  if (event.webkitCompassHeading) {
+  if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
-  } else {
+  } else if(event.alpha != null){
     // Android
     heading = 360 - event.alpha;
+  } else {
+    return;
   }
 
   // 差を正しく計算（-180〜180にする）
@@ -45,9 +47,8 @@ function handleOrientation(event) {
   const maxStep = 3;
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
+  
   currentHeading += diff;
-
-  currentHeading = (currentHeading + 360) % 360;              //角度を0~360°に
   compass.style.transform = `rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
