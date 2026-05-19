@@ -1,4 +1,4 @@
-const compass = document.getElementById("compass");
+const compass = document.getElementById("arrow");
 const startBtn = document.getElementById("start");
 const ang_val = document.getElementById("ang_val");
 
@@ -49,7 +49,7 @@ function handleOrientation(event) {
   if (diff < -maxStep) diff = -maxStep;
   
   currentHeading += diff;
-  compass.style.transform = `rotate(${-currentHeading}deg)`;  //回転
+  compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
