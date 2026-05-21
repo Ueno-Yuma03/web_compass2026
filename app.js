@@ -48,6 +48,7 @@ function handleOrientation(event) {
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
   
+  currentHeading += diff * 0.1;
   currentHeading = (currentHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
