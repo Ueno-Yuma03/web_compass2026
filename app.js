@@ -21,6 +21,7 @@ startBtn.addEventListener("click", () => {
 });
 
 let currentHeading = 0;
+let lastDiff = 0;
 function handleOrientation(event) {
   let heading;
 
@@ -41,16 +42,22 @@ function handleOrientation(event) {
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
-  if (Math.abs(diff) < 0.5) {
+  if (Math.abs(diff) < 1) {
     return;
   }
+
+  //方向ロック
+  if (Math.sign(diff) !== Math.sign(lastDiff) && Math.abs(diff) < 10) {
+    diff = lastDiff;
+  }
+lastDiff = diff;
 
   //一回に移動する角度制限
   const maxStep = 3;
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
   
-  currentHeading += diff * 0.1;
+  currentHeading += diff * 0.2;
   currentHeading = (currentHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
