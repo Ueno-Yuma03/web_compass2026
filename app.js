@@ -27,7 +27,7 @@ function handleOrientation(event) {
   // iOS
   if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
-  } else if(event.absolute == true && event.alpha != null){
+  } else if(event.alpha != null){
     // Android
     heading = (360 - event.alpha) % 360;
   } else {
