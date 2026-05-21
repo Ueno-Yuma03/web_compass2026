@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Compass</title>
     <style>
+        /*内側の円*/
         .circle {
           width:  80vw;
           height: 80vw;
@@ -20,46 +21,132 @@
           font-weight: bold;
           margin: 50px auto;
           position: relative;
+          /* 16分割線 */
+          background:
+          /*外側リングの線*/
+          repeating-conic-gradient(
+          rgba(0,0,0,0.4) 0deg 1deg,
+            transparent 1deg 22.5deg
+          );
+        }
+
+        /*外側と内側の間の円*/
+        .circle::before {
+          content: "";
+          position: absolute;
+          /* 少し外側に広げる */
+          width: 120%;
+          height: 120%;
+          border: 3px solid black;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          /* 下に潜らせる */
+          z-index: 0;
+          /* 外リングの線 */
+          background: repeating-conic-gradient(
+          black 1deg 22deg,  /* 少しオフセット */
+            transparent 22.5deg 23.5deg
+          );
+
+          top: 50%;
+          left: 50%;
+          /* 内側をくり抜く */
+          mask: radial-gradient(circle, transparent 60%, black 61%);
+          -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
+        }
+        
+        /*中心に白円(16等分線分が汚くならないように)*/
+        .circle::after {
+          content: "";
+          position: absolute;
+          width: 25%;
+          height: 25%;
+          background: white;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        /*外側の円*/
+        .circle1 {
+          position: absolute;
+          width: 130%;
+          height: 130%;
+          border: 2px solid black;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 0;
         }
 
         #compass {
           width: 200px;
         }
 
+        /*針*/
         .arrow{
           position: absolute;
           width: 2%;
-          height: 50%;
+          height: 36%;
           max-width: 12px;
           max-height: 180px;
-          background-color: black;
+          background: linear-gradient(to bottom, darkred, black);
           top: 50%;
           left: 50%;
           transform-origin: bottom center;
           transform: translate(-50%, -100%);
           border-radius: 3px;
+          /*針の上に線が来ないように*/
+          z-index: 2;
+        }
+        
+        /*針先の三角*/
+        .arrow::before {
+          content: "";
+          position: absolute;
+          top: 5%;
+          left: 50%;
+          transform: translate(-50%, -100%);
+          transform-origin: 50% 100%;
+          width: 160%;
+          height: 45%;
+          background: linear-gradient(to bottom, red, darkred);
+          /* ↓これが本体 */
+          clip-path: polygon(50% 0%, 88% 100%, 12% 100%);
         }
 
+        /*針の付け根の円*/
         .arrow::after {
           content: "";
           position: absolute;
-          bottom: -5px;
+          bottom: 0px;
           left: 50%;
-          transform: translateX(-50%);
-          width: 10px;
-          height: 10px;
+          transform: translate(-50%, 50%);
+          width: 40px;
+          height: 40px;
           background: black;
           border-radius: 50%;
         }
 
         .label {
+          z-index: 5;
+          color: black;
+          text-shadow:
+            3px 3px 0 white,
+            -3px 3px 0 white,
+            3px -3px 0 white,
+            -3px -3px 0 white;
           position: absolute;
           font-weight: bold;
         }
-        .north { top: -12%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
-        .south { bottom: -12%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
-        .east  { right: -9%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
-        .west  { left: -9%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
+        .north { top: -22%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+        .south { bottom: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+        .east  { right: -18%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
+        .west  { left: -20%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
 
 </style>
 </head>
@@ -67,9 +154,9 @@
 <div style="text-align: center;">
     <p>WEBコンパス</p>
 </div>
-<button id="start">許可して開始</button>
 <p id="ang_val"></p>
 <div class="circle">
+  <div class="circle1"></div>
   <div id="compass">
     <div class="arrow"></div>
   </div>

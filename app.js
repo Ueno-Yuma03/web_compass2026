@@ -1,27 +1,35 @@
 const compass = document.querySelector(".arrow");
-const startBtn = document.getElementById("start");
 const ang_val = document.getElementById("ang_val");
-
-startBtn.addEventListener("click", () => {
-
-  // iOS対応（許可が必要）
-  if (typeof DeviceOrientationEvent.requestPermission === "function") {
-    DeviceOrientationEvent.requestPermission()
-      .then(permissionState => {
-        if (permissionState === "granted") {
-          window.addEventListener("deviceorientation", handleOrientation);
-        }
-      })
-      .catch(console.error);
-  } else {
-    // Androidなど
-    window.addEventListener("deviceorientation", handleOrientation);
-  }
-
-});
 
 let currentHeading = 0;
 let lastDiff = 0;
+
+window.addEventListener("load", initOrientation);
+function initOrientation() {
+
+  //iOS判定（許可が必要な場合）
+  if (
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof DeviceOrientationEvent.requestPermission === "function"
+  ) {
+    //iOS → 許可を要求
+    DeviceOrientationEvent.requestPermission()
+      .then(permissionState => {
+
+        if (permissionState === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation);
+        } else {
+          ang_val.textContent = "センサーの許可が必要です";
+        }
+      })
+      .catch(console.error);
+
+  } else {
+    // Android → そのまま開始
+    window.addEventListener("deviceorientation", handleOrientation);
+  }
+}
+
 function handleOrientation(event) {
   let heading;
 
@@ -37,7 +45,7 @@ function handleOrientation(event) {
     return;
   }
 
-  // 差を正しく計算（-180〜180にする）
+  // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
   let diff = heading - currentHeading;
   diff = ((diff + 540) % 360) - 180;
   
@@ -50,9 +58,9 @@ function handleOrientation(event) {
   if (Math.sign(diff) !== Math.sign(lastDiff) && Math.abs(diff) < 10) {
     diff = lastDiff;
   }
-lastDiff = diff;
+  lastDiff = diff;
   
-  currentHeading += diff * 0.2;
+  currentHeading += diff * 0.15;
   currentHeading = (currentHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
