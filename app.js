@@ -29,8 +29,7 @@ function handleOrientation(event) {
     heading = event.webkitCompassHeading;
   } else if(event.absolute == true && event.alpha != null){
     // Android
-    heading = event.alpha;
-    heading = (360 - heading) % 360;
+    heading = (360 - event.alpha) % 360;
   } else {
     return;
   }
@@ -49,12 +48,12 @@ function handleOrientation(event) {
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
   
-  currentHeading = (currentHeading + diff + 360) % 360;
+  currentHeading = (currentHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
-    現在の方角: ${currentHeading.toFixed(1)}
+    現在の角度: ${currentHeading.toFixed(1)}
     角度差: ${diff.toFixed(1)}
     `;
 }
