@@ -27,9 +27,10 @@ function handleOrientation(event) {
   // iOS
   if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
-  } else if(event.alpha != null){
+  } else if(event.absolute == true && event.alpha != null){
     // Android
-    heading = 360 - event.alpha;
+    heading = event.alpha;
+    heading = (360 - heading) % 360;
   } else {
     return;
   }
@@ -48,7 +49,7 @@ function handleOrientation(event) {
   if (diff > maxStep) diff = maxStep;
   if (diff < -maxStep) diff = -maxStep;
   
-  currentHeading += diff;
+  currentHeading = (currentHeading + diff + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
