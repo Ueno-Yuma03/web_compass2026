@@ -27,8 +27,10 @@ function handleOrientation(event) {
   // iOS
   if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
-  } else if(event.alpha != null){
+  } else if(event.absolute === true && event.alpha != null){
     // Android
+    heading = (360 - event.alpha) % 360;
+  } else if(event.alpha != null){
     heading = (360 - event.alpha) % 360;
   } else {
     return;
@@ -36,7 +38,7 @@ function handleOrientation(event) {
 
   // 差を正しく計算（-180〜180にする）
   let diff = heading - currentHeading;
-  diff = ((diff + 180) % 360) - 180;
+  diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
   if (Math.abs(diff) < 0.5) {
