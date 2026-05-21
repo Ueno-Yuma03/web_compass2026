@@ -51,11 +51,6 @@ function handleOrientation(event) {
     diff = lastDiff;
   }
 lastDiff = diff;
-
-  //一回に移動する角度制限
-  const maxStep = 3;
-  if (diff > maxStep) diff = maxStep;
-  if (diff < -maxStep) diff = -maxStep;
   
   currentHeading += diff * 0.2;
   currentHeading = (currentHeading + 360) % 360;
