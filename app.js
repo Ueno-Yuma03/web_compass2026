@@ -1,4 +1,4 @@
-const compass = document.getElementById("compass");
+const compass = document.querySelector(".arrow");
 const startBtn = document.getElementById("start");
 const ang_val = document.getElementById("ang_val");
 
