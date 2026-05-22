@@ -5,22 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Compass</title>
     <style>
-        /*内側の円*/
-        .circle {
+      /*コンパスの円を構成する要素 .compass_wrapper */
+        .compass_wrapper {
+          position: relative;
           width:  65vw;
           height: 65vw;
           max-width: 300px;
           max-height: 300px;
+          margin: 100px auto;
+          font-size: 15px;
+          font-weight: bold;
+        }
+        /*内側の円*/
+        .circle {
+          position: absolute;
+          width: 100%;
+          height: 100%;
           background-color: white;
           border: 5px solid black; /* 枠線 */
           border-radius: 50%;
           display: flex;              /* 中央寄せ用 */
           align-items: center;        /* 縦方向中央 */
           justify-content: center;    /* 横方向中央 */
-          font-size: 15px;
-          font-weight: bold;
-          margin: 50px auto;
-          position: relative;
           /* 16分割線 */
           background:
           /*外側リングの線*/
@@ -127,8 +133,8 @@
           bottom: 0px;
           left: 50%;
           transform: translate(-50%, 50%);
-          width: 40px;
-          height: 40px;
+          width: 12%;
+          height: 12%;
           background: black;
           border-radius: 50%;
         }
@@ -139,9 +145,9 @@
           position: absolute;
           /*overflow: hidden;*/
           display: inline-block;
-          top: 0;
+          top: 50%;
           left: 50%;
-          transform: translate(-50%, 330%);
+          transform: translate(-50%, -50%);
           padding: 6% 6%;
           background: #ddd; /* 必要なら */
         }
@@ -168,8 +174,8 @@
           position: absolute;
           left: 50%;
           top: 50%;
-          width: 3px;
-          height: 150px;
+          width: 4px;
+          height: 51%;
           background: red;
           transform-origin: bottom center;
         }
@@ -185,7 +191,7 @@
           position: absolute;
           font-weight: bold;
         }
-        .north { top: -22%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+        .north { top: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
         .south { bottom: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
         .east  { right: -18%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
         .west  { left: -20%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
@@ -197,14 +203,16 @@
     <p>WEBコンパス</p>
 </div>
 <p id="ang_val"></p>
-<div class="circle">
-  <div class="circle1"></div>
-  <div class="arrow"></div>
-  <button class="ripple-btn"></button>
-  <div class="label north">N</div>
-  <div class="label south">S</div>
-  <div class="label east">E</div>
-  <div class="label west">W</div>
+<div class="compass_wrapper">
+  <div class="circle">
+    <div class="circle1"></div>
+    <div class="arrow"></div>
+    <div class="label north">N</div>
+    <div class="label south">S</div>
+    <div class="label east">E</div>
+    <div class="label west">W</div>
+    <button class="ripple-btn"></button>
+  </div>
   <script src="app.js" defer></script>
 </div>
 </body>
