@@ -98,7 +98,9 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   button.appendChild(ripple);
   setTimeout(() => ripple.remove(), 600);
 
-  //
+  //線の描画
+    //残っている場合、線を消す
+  document.querySelectorAll('.line').forEach(l => l.remove());
   const cirarea = document.querySelector('.circle');
   const line = document.createElement('div');
   line.classList.add('line');

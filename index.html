@@ -114,6 +114,7 @@
           transform-origin: 50% 100%;
           width: 160%;
           height: 45%;
+          z-index: 2;
           background: linear-gradient(to bottom, red, darkred);
           /* ↓これが本体 */
           clip-path: polygon(50% 0%, 88% 100%, 12% 100%);
@@ -163,10 +164,11 @@
         }
 
         .line {
+          z-index: 1;
           position: absolute;
           left: 50%;
           top: 50%;
-          width: 2px;
+          width: 3px;
           height: 150px;
           background: red;
           transform-origin: bottom center;
@@ -197,16 +199,13 @@
 <p id="ang_val"></p>
 <div class="circle">
   <div class="circle1"></div>
-  <div >
-  <div id="compass">
-    <div class="arrow"></div>
-  </div>
-<div class="label north">N</div>
-<div class="label south">S</div>
-<div class="label east">E</div>
-<div class="label west">W</div>
-<button class="ripple-btn"></button>
-<script src="app.js" defer></script>
+  <div class="arrow"></div>
+  <button class="ripple-btn"></button>
+  <div class="label north">N</div>
+  <div class="label south">S</div>
+  <div class="label east">E</div>
+  <div class="label west">W</div>
+  <script src="app.js" defer></script>
 </div>
 </body>
 </html>
