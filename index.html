@@ -182,16 +182,18 @@
 
         .label {
           z-index: 5;
+          position: absolute;
+          --radius: 32vw;
+          transform-origin: center;
+          font-weight: bold;
           color: black;
           text-shadow:
-            3px 3px 0 white,
-            -3px 3px 0 white,
-            3px -3px 0 white,
-            -3px -3px 0 white;
-          position: absolute;
-          font-weight: bold;
+            -2px -2px 0 white,
+            2px -2px 0 white,
+            -2px 2px 0 white,
+            -2px -2px 0 white;
         }
-        .north { top: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+        .north { top: -22%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
         .south { bottom: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
         .east  { right: -18%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
         .west  { left: -20%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
