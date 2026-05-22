@@ -70,3 +70,33 @@ function handleOrientation(event) {
     角度差: ${diff.toFixed(1)}
     `;
 }
+
+
+document.querySelector('.ripple-btn').addEventListener('click', function (e) {
+  const button = e.currentTarget;
+  
+  // 既存の波紋を削除
+  const oldRipple = button.querySelector('.ripple');
+  if (oldRipple) {
+    oldRipple.remove();
+  }
+
+  //波紋要素を作成
+  const ripple = document.createElement('span');
+  ripple.classList.add('ripple');
+
+  const rect = button.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + 'px';
+
+  //クリック位置
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+
+  button.appendChild(ripple);
+
+  setTimeout(() => ripple.remove(), 600);
+});

@@ -132,6 +132,36 @@
           border-radius: 50%;
         }
 
+        /*タップすると針を追加する*/
+        .ripple-btn {
+          z-index: 5;
+          position: absolute;
+          /*overflow: hidden;*/
+          display: inline-block;
+          top: 0;
+          left: 50%;
+          transform: translate(-50%, 365%);
+          padding: 6% 6%;
+          background: #ddd; /* 必要なら */
+        }
+
+        /* 波紋 */
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.6);
+          transform: scale(0);
+          animation: ripple-animation 600ms linear;
+        }
+
+        /*波紋のアニメーション*/
+        @keyframes ripple-animation {
+        to {
+          transform: scale(4);
+          opacity: 0;
+          }
+        }
+
         .label {
           z-index: 5;
           color: black;
@@ -164,6 +194,7 @@
 <div class="label south">S</div>
 <div class="label east">E</div>
 <div class="label west">W</div>
+<div class="ripple-btn"></div>
 <script src="app.js" defer></script>
 </div>
 </body>
