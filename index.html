@@ -132,7 +132,7 @@
           border-radius: 50%;
         }
 
-        /*タップすると針を追加する*/
+        /*タップすると針を追加するボタン*/
         .ripple-btn {
           z-index: 5;
           position: absolute;
@@ -140,7 +140,7 @@
           display: inline-block;
           top: 0;
           left: 50%;
-          transform: translate(-50%, 365%);
+          transform: translate(-50%, 330%);
           padding: 6% 6%;
           background: #ddd; /* 必要なら */
         }
@@ -160,6 +160,16 @@
           transform: scale(4);
           opacity: 0;
           }
+        }
+
+        .line {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 2px;
+          height: 150px;
+          background: red;
+          transform-origin: bottom center;
         }
 
         .label {
@@ -187,6 +197,7 @@
 <p id="ang_val"></p>
 <div class="circle">
   <div class="circle1"></div>
+  <div >
   <div id="compass">
     <div class="arrow"></div>
   </div>
@@ -194,7 +205,7 @@
 <div class="label south">S</div>
 <div class="label east">E</div>
 <div class="label west">W</div>
-<div class="ripple-btn"></div>
+<button class="ripple-btn"></button>
 <script src="app.js" defer></script>
 </div>
 </body>

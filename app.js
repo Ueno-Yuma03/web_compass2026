@@ -71,7 +71,6 @@ function handleOrientation(event) {
     `;
 }
 
-
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
   
@@ -89,7 +88,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const size = Math.max(rect.width, rect.height);
   ripple.style.width = ripple.style.height = size + 'px';
 
-  //クリック位置
+  //クリック(タップ)位置
   const x = e.clientX - rect.left - size / 2;
   const y = e.clientY - rect.top - size / 2;
 
@@ -97,6 +96,13 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   ripple.style.top = y + 'px';
 
   button.appendChild(ripple);
-
   setTimeout(() => ripple.remove(), 600);
+
+  //
+  const cirarea = document.querySelector('.circle');
+  const line = document.createElement('div');
+  line.classList.add('line');
+  // currentHeadingの方向に回転
+  line.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;
+  cirarea.appendChild(line);
 });
