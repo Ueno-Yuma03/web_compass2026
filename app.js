@@ -1,5 +1,6 @@
 const compass = document.querySelector(".arrow");
 const ang_val = document.getElementById("ang_val");
+const abst_rel = document.getElementById("abst_rel");
 
 let currentHeading = 0;
 let lastDiff = 0;
@@ -38,8 +39,10 @@ function handleOrientation(event) {
     heading = event.webkitCompassHeading;
   } else if(event.absolute === true && event.alpha != null){
     // Android
-    heading = (360 - event.alpha) % 360;
+    abst_rel.innerHTML = '絶対参照（磁北）';
+    heading = event.alpha;
   } else if(event.alpha != null){
+    abst_rel.innerHTML = '端末の回転角参照';
     heading = (360 - event.alpha) % 360;
   } else {
     return;
