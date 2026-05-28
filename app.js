@@ -1,4 +1,4 @@
-const compass = document.querySelector(".arrow");
+const compass = document.querySelector(".circle");
 const ang_val = document.getElementById("ang_val");
 
 let currentHeading = 0;
@@ -60,7 +60,7 @@ function handleOrientation(event) {
   }
   lastDiff = diff;
   
-  currentHeading += diff * 0.15;
+  currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
 

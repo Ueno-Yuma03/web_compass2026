@@ -1,0 +1,192 @@
+@charset "UTF-8";
+/*コンパスの円を構成する要素 .compass_wrapper */
+    .compass_wrapper {
+        position: relative;
+        width:  65vw;
+        height: 65vw;
+        max-width: 300px;
+        max-height: 300px;
+        margin: 100px auto;
+        font-size: 15px;
+        font-weight: bold;
+    }
+/*内側の円*/
+    .circle {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        border: 5px solid black; /* 枠線 */
+        border-radius: 50%;
+        display: flex;              /* 中央寄せ用 */
+        align-items: center;        /* 縦方向中央 */
+        justify-content: center;    /* 横方向中央 */
+        /* 16分割線 */
+        background:
+        /*外側リングの線*/
+        repeating-conic-gradient(
+        rgba(0,0,0,0.4) 0deg 1deg,
+          transparent 1deg 22.5deg
+        );
+    }
+
+    /*外側と内側の間の円*/
+    .circle::before {
+        content: "";
+        position: absolute;
+        /* 少し外側に広げる */
+        width: 120%;
+        height: 120%;
+        border: 3px solid black;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /* 下に潜らせる */
+        z-index: 0;
+        /* 外リングの線 */
+        background: repeating-conic-gradient(
+        black 1deg 22deg,  /* 少しオフセット */
+          transparent 22.5deg 23.5deg
+        );
+        top: 50%;
+        left: 50%;
+        /* 内側をくり抜く */
+        mask: radial-gradient(circle, transparent 60%, black 61%);
+        -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
+    }
+        
+    /*中心に白円(16等分線分が汚くならないように)*/
+    .circle::after {
+        content: "";
+        position: absolute;
+        width: 25%;
+        height: 25%;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /*外側の円*/
+    .circle1 {
+        position: absolute;
+        width: 130%;
+        height: 130%;
+        border: 2px solid black;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+    }
+
+    #compass {
+        width: 200px;
+    }
+
+    /*針*/
+    .arrow{
+        position: absolute;
+        width: 2%;
+        height: 36%;
+        max-width: 12px;
+        max-height: 150px;
+        background: linear-gradient(to bottom, darkred, black);
+        top: 50%;
+        left: 50%;
+        transform-origin: bottom center;
+        transform: translate(-50%, -100%);
+        border-radius: 3px;
+        /*針の上に線が来ないように*/
+        z-index: 2;
+    }
+        
+    /*針先の三角*/
+    .arrow::before {
+        content: "";
+        position: absolute;
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, -100%);
+        transform-origin: 50% 100%;
+        width: 160%;
+        height: 45%;
+        z-index: 2;
+        background: linear-gradient(to bottom, red, darkred);
+        /* ↓これが本体 */
+        clip-path: polygon(50% 0%, 88% 100%, 12% 100%);
+    }
+
+    /*針の付け根の円*/
+    .arrow::after {
+        content: "";
+        position: absolute;
+        bottom: 0px;
+        left: 50%;
+        transform: translate(-50%, 50%);
+        width: 12%;
+        height: 12%;
+        background: black;
+        border-radius: 50%;
+    }
+
+    /*タップすると針を追加するボタン*/
+    .ripple-btn {
+        z-index: 5;
+        position: absolute;
+        /*overflow: hidden;*/
+        display: inline-block;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 6% 6%;
+        background: #ddd; /* 必要なら */
+    }
+
+    /* 波紋 */
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 600ms linear;
+    }
+
+    /*波紋のアニメーション*/
+    @keyframes ripple-animation {
+        to {
+        transform: scale(4);
+        opacity: 0;
+        }
+    }
+
+    .line {
+        z-index: 1;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 4px;
+        height: 51%;
+        background: red;
+        transform-origin: bottom center;
+    }
+
+    .label {
+        z-index: 5;
+        position: absolute;
+        --radius: 32vw;
+        transform-origin: center;
+        font-weight: bold;
+        color: black;
+        text-shadow:
+          -2px -2px 0 white,
+          2px -2px 0 white,
+          -2px 2px 0 white,
+          -2px -2px 0 white;
+    }
+    .north { top: -22%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+    .south { bottom: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
+    .east  { right: -18%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
+    .west  { left: -20%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
