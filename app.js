@@ -1,6 +1,5 @@
 const compass = document.querySelector(".arrow");
 const ang_val = document.getElementById("ang_val");
-const abst_rel = document.getElementById("abst_rel");
 
 let currentHeading = 0;
 let lastDiff = 0;
@@ -39,9 +38,9 @@ function handleOrientation(event) {
     heading = event.webkitCompassHeading;
   } else if(event.absolute === true && event.alpha != null){
     // Android
-    heading = (360 + event.alpha) % 360;
+    heading = (360 - event.alpha) % 360;
   } else if(event.alpha != null){
-    heading = (360 + event.alpha) % 360;
+    heading = (360 - event.alpha) % 360;
   } else {
     return;
   }
