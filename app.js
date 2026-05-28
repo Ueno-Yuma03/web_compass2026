@@ -39,11 +39,9 @@ function handleOrientation(event) {
     heading = event.webkitCompassHeading;
   } else if(event.absolute === true && event.alpha != null){
     // Android
-    abst_rel.innerHTML = '絶対参照（磁北）';
     heading = event.alpha;
   } else if(event.alpha != null){
-    abst_rel.innerHTML = '端末の回転角参照';
-    heading = (360 - event.alpha) % 360;
+    heading = event.alpha;
   } else {
     return;
   }
