@@ -1,4 +1,4 @@
-const compass = document.querySelector(".circle");
+const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 
 let currentHeading = 0;
@@ -101,7 +101,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   //線の描画
     //残っている場合、線を消す
   document.querySelectorAll('.line').forEach(l => l.remove());
-  const cirarea = document.querySelector('.circle');
+  const cirarea = document.querySelector('.dial');
   const line = document.createElement('div');
   line.classList.add('line');
   // currentHeadingの方向に回転
