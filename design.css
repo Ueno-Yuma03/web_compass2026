@@ -2,11 +2,8 @@
 /*body要素*/
     body {
         margin: 0;
+        width: 100vw;
         height: 100vh;
-        display: flex;              /* 中央寄せ用*/ 
-        align-items: center;        /* 縦方向中央*/
-        justify-content: center;    /* 横方向中央 */
-
     }
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
@@ -15,13 +12,16 @@
         height: 100vh;
         font-size: 15px;
         font-weight: bold;
+        display: flex;              /* 中央寄せ用*/ 
+        align-items: center;        /* 縦方向中央*/
+        justify-content: center;    /* 横方向中央 */
     }
 
     /* .circle~.circle1 を統括する要素(回転させる要素) .dial*/
     .dial {
         position: absolute;
-        width:  60vw;
-        height: 60vw;
+        width:  65vw;
+        height: 65vw;
         max-width:  300px;
         max-height: 300px;
         top: 50%;
@@ -36,6 +36,9 @@
         background-color: white;
         border: 5px solid black; /* 枠線 */
         border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         /* 16分割線 */
         background:
         /*外側リングの線*/
@@ -103,9 +106,9 @@
     .arrow{
         position: absolute;
         width: 2%;
-        height: 36%;
+        height: 32%;
         max-width: 10px;
-        max-height: 150px;
+        max-height: 140px;
         background: linear-gradient(to bottom, darkred, black);
         top: 50%;
         left: 50%;
@@ -151,7 +154,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        padding: 3% 3%;
+        padding: 6% 6%;
         background: #ddd; /* 必要なら */
     }
     /* 波紋 */
