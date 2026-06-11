@@ -110,7 +110,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const cirarea = document.querySelector('.dial');
   const line = document.createElement('div');
   line.classList.add('line');
-  // headingState.currentの方向に回転
-  line.style.transform = `translate(-50%, -50%) rotate(${-headingState.current}deg)`;
+  // headingState.rawの方向に回転
+  line.style.transform = `translate(-50%, -100%) rotate(${-headingState.raw}deg)`;
   cirarea.appendChild(line);
 });
