@@ -23,7 +23,7 @@
     .dial {
         position: absolute;
         width:  65%;
-        height: 65%;
+        aspect-ratio: 1;
         max-width:  300px;
         max-height: 300px;
         top: 50%;
@@ -38,6 +38,8 @@
         background-color: white;
         border: 5px solid black; /* 枠線 */
         border-radius: 50%;
+        top: 0%;
+        left: 0%;
         /* 16分割線 */
         background:
         /*外側リングの線*/
@@ -55,9 +57,6 @@
         height: 120%;
         border: 3px solid black;
         border-radius: 50%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         /* 下に潜らせる */
         z-index: 0;
         /* 外リングの線 */
@@ -67,6 +66,7 @@
         );
         top: 50%;
         left: 50%;
+        transform: translate(-50%, -50%);
         /* 内側をくり抜く */
         mask: radial-gradient(circle, transparent 60%, black 61%);
         -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
