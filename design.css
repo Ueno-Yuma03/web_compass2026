@@ -38,6 +38,7 @@
         background-color: white;
         border: 5px solid black; /* 枠線 */
         border-radius: 50%;
+        box-sizing: border-box;
         top: 0%;
         left: 0%;
         /* 16分割線 */
