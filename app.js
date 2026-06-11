@@ -111,6 +111,6 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const line = document.createElement('div');
   line.classList.add('line');
   // headingState.currentの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${-headingState.current}deg)`;
+  line.style.transform = `translate(-50%, -50%) rotate(${-headingState.current}deg)`;
   cirarea.appendChild(line);
 });
