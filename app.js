@@ -62,7 +62,7 @@ function handleOrientation(event) {
   
   currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
-  compass.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;  //回転
+  compass.style.transform = `translate(-50%, -50%) rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
