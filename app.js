@@ -1,7 +1,12 @@
 const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
+const rp_btn = document.querySelector(".ripple-btn");
 
-let currentHeading = 0;
+const headingState = {
+  current: 0,        /*現在の角度 */
+  Offset: 0,         /*キャリブレーション用 */
+  raw: 0             /*センサー値 */
+};
 let lastDiff = 0;
 
 window.addEventListener("load", initOrientation);
@@ -46,7 +51,7 @@ function handleOrientation(event) {
   }
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = heading - currentHeading;
+  let diff = heading - headingState.current;
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
@@ -60,19 +65,20 @@ function handleOrientation(event) {
   }
   lastDiff = diff;
   
-  currentHeading += diff * 0.12;
-  currentHeading = (currentHeading + 360) % 360;
-  compass.style.transform = `translate(-50%, -50%) rotate(${-currentHeading}deg)`;  //回転
+  headingState.current += diff * 0.12;
+  headingState.current = (headingState.current + 360) % 360;
+  compass.style.transform = `translate(-50%, -50%) rotate(${-headingState.current}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
-    現在の角度: ${currentHeading.toFixed(1)}
+    現在の角度: ${headingState.current.toFixed(1)}
     角度差: ${diff.toFixed(1)}
     `;
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
+  headingState.Offset = headingState.raw;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
@@ -85,7 +91,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   ripple.classList.add('ripple');
 
   const rect = button.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
+  const size = Math.max(rect.width, rect.height) * 0.5;
   ripple.style.width = ripple.style.height = size + 'px';
 
   //クリック(タップ)位置
@@ -96,15 +102,15 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   ripple.style.top = y + 'px';
 
   button.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
+  setTimeout(() => ripple.remove(), 400);
 
   //線の描画
-    //残っている場合、線を消す
+  //残っている場合、線を消す
   document.querySelectorAll('.line').forEach(l => l.remove());
   const cirarea = document.querySelector('.dial');
   const line = document.createElement('div');
   line.classList.add('line');
-  // currentHeadingの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;
+  // headingState.currentの方向に回転
+  line.style.transform = `translate(-50%, -100%) rotate(${-headingState.current}deg)`;
   cirarea.appendChild(line);
 });
