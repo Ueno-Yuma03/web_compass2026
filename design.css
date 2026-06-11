@@ -8,7 +8,7 @@
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
         position: relative;
-        width:  80vw;
+        width:  100vw;
         height: 80vh;
         font-size: 15px;
         font-weight: bold;
@@ -20,8 +20,8 @@
     /* .circle~.circle1 を統括する要素(回転させる要素) .dial*/
     .dial {
         position: absolute;
-        width:  65vw;
-        height: 65vw;
+        width:  60vw;
+        height: 60vw;
         max-width:  300px;
         max-height: 300px;
         top: 50%;
@@ -108,12 +108,12 @@
         width: 2%;
         height: 32%;
         max-width: 10px;
-        max-height: 200px;
+        max-height: 180px;
         background: linear-gradient(to bottom, darkred, black);
         top: 50%;
         left: 50%;
         transform: translate(-50%, -100%);
-        transform-origin: bottom center;
+        transform-origin: center;
         border-radius: 3px;
         /*針の上に線が来ないように*/
         z-index: 2;
