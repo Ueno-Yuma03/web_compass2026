@@ -3,13 +3,13 @@
     body {
         margin: 0;
         width: 100vw;
-        height: 100vh;
+        height: 80vh;
     }
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
         position: relative;
         width:  100vw;
-        height: 80vh;
+        height: 100vh;
         font-size: 15px;
         font-weight: bold;
         display: flex;              /* 中央寄せ用*/ 
