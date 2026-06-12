@@ -119,6 +119,6 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const ang_clknow = currentHeading;
 
   // currentHeadingの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${-ang_clknow}deg)`;
+  line.style.transform = `translate(-50%, -100%) rotate(${ang_clknow}deg)`;
   cirarea.appendChild(line);
 });
