@@ -3,7 +3,7 @@ const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 
 let lastDiff = 0;
-let offset;
+let offset = 0;
 let currentHeading = 0;
 
 window.addEventListener("load", initOrientation);
@@ -46,8 +46,6 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  let currentHeading = 0;
-
   //補正
   let corrected = heading - offset;
   corrected = (corrected + 360) % 360;
