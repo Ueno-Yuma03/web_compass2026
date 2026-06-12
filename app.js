@@ -3,6 +3,8 @@ const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 
 let lastDiff = 0;
+let offset;
+let currentHeading = 0;
 
 window.addEventListener("load", initOrientation);
 function initOrientation() {
@@ -47,7 +49,7 @@ function handleOrientation(event) {
   let currentHeading = 0;
 
   //補正
-  let corrected = heading - headingState.Offset;
+  let corrected = heading - offset;
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -78,7 +80,7 @@ function handleOrientation(event) {
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  headingState.Offset = heading;
+  offset = heading;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
