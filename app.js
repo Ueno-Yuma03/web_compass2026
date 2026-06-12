@@ -49,9 +49,14 @@ function handleOrientation(event) {
   } else {
     return;
   }
+  headingState.raw = heading;
+
+  //補正
+  let corrected = heading - headingState.Offset;
+  corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = heading - headingState.current;
+  let diff = corrected - headingState.current;
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
