@@ -2,11 +2,6 @@ const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 
-const headingState = {
-  current: 0,        /*現在の角度 */
-  Offset: 0,         /*キャリブレーション用 */
-  raw: 0             /*センサー値 */
-};
 let lastDiff = 0;
 
 window.addEventListener("load", initOrientation);
@@ -49,14 +44,14 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  headingState.raw = heading;
+  let currentHeading = 0;
 
   //補正
   let corrected = heading - headingState.Offset;
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = corrected - headingState.current;
+  let diff = corrected - currentHeading;
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
@@ -70,20 +65,20 @@ function handleOrientation(event) {
   }
   lastDiff = diff;
   
-  headingState.current += diff * 0.12;
-  headingState.current = (headingState.current + 360) % 360;
-  compass.style.transform = `translate(-50%, -50%) rotate(${-headingState.current}deg)`;  //回転
+  currentHeading += diff * 0.12;
+  currentHeading = (currentHeading + 360) % 360;
+  compass.style.transform = `translate(-50%, -50%) rotate(${-currentHeading}deg)`;  //回転
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
-    現在の角度: ${headingState.current.toFixed(1)}
+    現在の角度: ${currentHeading.toFixed(1)}
     角度差: ${diff.toFixed(1)}
     `;
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  headingState.Offset = headingState.raw;
+  headingState.Offset = heading;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
@@ -115,7 +110,11 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const cirarea = document.querySelector('.dial');
   const line = document.createElement('div');
   line.classList.add('line');
-  // headingState.rawの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${-headingState.raw}deg)`;
+
+  //ボタンを押された瞬間の角度を保存する
+  const ang_clknow = currentHeading;
+
+  // currentHeadingの方向に回転
+  line.style.transform = `translate(-50%, -100%) rotate(${-ang_clknow}deg)`;
   cirarea.appendChild(line);
 });
