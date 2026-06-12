@@ -156,8 +156,9 @@
         color: #FFF;
         border-bottom: solid 4px #37373d;
         border-radius: 2%;
-        left: 25%;
-        transform: translate(-25%, 0%);
+        left: 20%;
+        top: 80%;
+        transform: translate(-20%, 0%);
     }
     /* 波紋 */
     .ripple {
