@@ -48,10 +48,10 @@ function handleOrientation(event) {
     return;
   }
   //Headingをグローバル変数RawHeadingに渡す
-  RawHeading = heading;
+  //RawHeading = heading;
 
   //補正(キャリブレーション用)
-  let corrected = heading - offset;
+  let corrected = offset - heading;
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -82,7 +82,7 @@ function handleOrientation(event) {
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  offset = RawHeading;
+  offset = currentHeading;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
