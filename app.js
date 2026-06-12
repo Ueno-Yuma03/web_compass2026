@@ -51,7 +51,7 @@ function handleOrientation(event) {
   //RawHeading = heading;
 
   //補正(キャリブレーション用)
-  let corrected = offset - heading;
+  let corrected = heading - offset;
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
