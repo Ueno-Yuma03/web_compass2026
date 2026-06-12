@@ -4,6 +4,7 @@ const rp_btn = document.querySelector(".ripple-btn");
 
 let lastDiff = 0;
 let offset = 0;
+let RawHeading = 0;
 let currentHeading = 0;
 
 window.addEventListener("load", initOrientation);
@@ -46,7 +47,10 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  //補正
+  //Headingをグローバル変数RawHeadingに渡す
+  RawHeading = heading;
+
+  //補正(キャリブレーション用)
   let corrected = heading - offset;
   corrected = (corrected + 360) % 360;
 
@@ -78,7 +82,7 @@ function handleOrientation(event) {
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  offset = heading;
+  offset = RawHeading;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
