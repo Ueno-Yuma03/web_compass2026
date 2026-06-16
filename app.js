@@ -6,7 +6,7 @@ let lastDiff = 0;
 let baseHeading = 0;
 let baseOffset = 0;
 let rawHeading = 0;
-let displayHeading = 0;
+let displayHeading = (rawHeading - baseOffset + 360) % 360;
 
 window.addEventListener("load", initOrientation);
 function initOrientation() {
@@ -52,34 +52,34 @@ function handleOrientation(event) {
 
   //補正(キャリブレーション用)
   let corrected = (heading - baseOffset + 360) % 360;
-
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
-
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
   let diff = targetHeading - displayHeading;
   diff = ((diff + 540) % 360) - 180;
-  
-  // 微小揺れもカット
-  if (Math.abs(diff) < 1) {
-    return;
+  // スムージング
+  if (Math.abs(diff) >= 1) {
+    displayHeading += diff * 0.2;
+    displayHeading = (displayHeading + 360) % 360;
   }
-
-  //方向ロック
-  /*if (Math.sign(diff) !== Math.sign(lastDiff) && Math.abs(diff) < 10) {
-    diff = lastDiff;
-  }
-  lastDiff = diff;*/
 
   displayHeading += diff * 0.2;
   displayHeading = (displayHeading + 360) % 360;
+  updateCompass();    //すぐに描画用
   compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
-
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
     現在の角度: ${displayHeading.toFixed(1)}
     角度差: ${diff.toFixed(1)}
     `;
+}
+
+function updateCompass(){
+  compass.style.transform =`translate(-50%, -50%) rotate(${-displayHeading}deg)`;
+  ang_val.textContent = `
+    方角:${rawHeading.toFixed(1)}
+    現在の角度:${displayHeading.toFixed(1)}
+  `;
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
