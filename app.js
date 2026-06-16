@@ -6,6 +6,7 @@ let lastDiff = 0;
 let offset = 0;
 let RawHeading = 0;
 let currentHeading = 0;
+let baseHeading = 0;
 
 window.addEventListener("load", initOrientation);
 function initOrientation() {
@@ -47,8 +48,6 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  //Headingをグローバル変数RawHeadingに渡す
-  //RawHeading = heading;
 
   //補正(キャリブレーション用)
   let corrected = heading - offset;
@@ -115,7 +114,10 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const line = document.createElement('div');
   line.classList.add('line');
 
+  let diffAngle = currentHeading - baseHeading;
+  diffAngle = ((diffAngle + 540) % 360) - 180;
+
   // currentHeadingの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${-currentHeading}deg)`;
+  line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;
   cirarea.appendChild(line);
 });
