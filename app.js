@@ -3,10 +3,9 @@ const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 
 let lastDiff = 0;
-let offset = 0;
-let RawHeading = 0;
 let currentHeading = 0;
 let baseHeading = 0;
+let baseOffset = 0;
 
 window.addEventListener("load", initOrientation);
 function initOrientation() {
@@ -50,11 +49,11 @@ function handleOrientation(event) {
   }
 
   //補正(キャリブレーション用)
-  let corrected = heading - offset;
+  let corrected = heading - baseOffset;
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = corrected - currentHeading;
+  let diff = currentHeading - baseOffest;
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
@@ -70,7 +69,11 @@ function handleOrientation(event) {
   
   currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
-  compass.style.transform = `translate(-50%, -50%) rotate(${-currentHeading}deg)`;  //回転
+  
+  let displayHeading = corrected - currentHeading;
+  displayHeading = (displayHeading + 360) % 360;
+  compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
+
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
@@ -81,7 +84,7 @@ function handleOrientation(event) {
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  offset = currentHeading;
+  baseOffset = currentHeading;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
@@ -114,20 +117,12 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const line = document.createElement('div');
   line.classList.add('line');
 
-  
- // 差分角で回転
-  let diffAngle = 0;
-  line.update = function () {
-    diffAngle = currentHeading - baseHeading;
-    diffAngle = ((diffAngle + 540) % 360) - 180;
-    line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;
-  };
-
-  /*let diffAngle = currentHeading - baseHeading;
-  diffAngle = ((diffAngle + 540) % 360) - 180;
+  // 常に北方向（0°）なので回転なし
+  line.style.transform = `translate(-50%, -100%) rotate(0deg)`;
+  cirarea.appendChild(line);
 
   // currentHeadingの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;*/
+  /*line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;
   cirarea.appendChild(line);
-  line.update();
+  line.update();*/
 });
