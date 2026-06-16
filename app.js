@@ -53,7 +53,7 @@ function handleOrientation(event) {
   corrected = (corrected + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = currentHeading - baseOffest;
+  let diff = corrected - currentHeading;
   diff = ((diff + 540) % 360) - 180;
   
   // 微小揺れもカット
@@ -66,14 +66,13 @@ function handleOrientation(event) {
     diff = lastDiff;
   }
   lastDiff = diff;
-  
+
   currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
-  
-  let displayHeading = corrected - currentHeading;
+
+  let displayHeading = corrected - baseOffset;
   displayHeading = (displayHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
-
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
