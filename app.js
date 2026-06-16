@@ -114,10 +114,20 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const line = document.createElement('div');
   line.classList.add('line');
 
-  let diffAngle = currentHeading - baseHeading;
+  
+ // 差分角で回転
+  let diffAngle = 0;
+  line.update = function () {
+    diffAngle = currentHeading - baseHeading;
+    diffAngle = ((diffAngle + 540) % 360) - 180;
+    line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;
+  };
+
+  /*let diffAngle = currentHeading - baseHeading;
   diffAngle = ((diffAngle + 540) % 360) - 180;
 
   // currentHeadingの方向に回転
-  line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;
+  line.style.transform = `translate(-50%, -100%) rotate(${diffAngle}deg)`;*/
   cirarea.appendChild(line);
+  line.update();
 });
