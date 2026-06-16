@@ -6,6 +6,7 @@ let lastDiff = 0;
 let currentHeading = 0;
 let baseHeading = 0;
 let baseOffset = 0;
+let rawHeading = 0;
 
 window.addEventListener("load", initOrientation);
 function initOrientation() {
@@ -47,10 +48,10 @@ function handleOrientation(event) {
   } else {
     return;
   }
+  rawHeading = heading;
 
   //補正(キャリブレーション用)
-  let corrected = heading - baseOffset;
-  corrected = (corrected + 360) % 360;
+  let corrected = (heading - baseOffset + 360) % 360;
 
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
   let diff = corrected - currentHeading;
@@ -69,10 +70,7 @@ function handleOrientation(event) {
 
   currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
-
-  let displayHeading = corrected;
-  displayHeading = (displayHeading + 360) % 360;
-  compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
+  compass.style.transform = `translate(-50%, -50%) rotate(${-corrected}deg)`;
 
   ang_val.textContent = `
     方角: ${heading.toFixed(1)}
@@ -83,7 +81,9 @@ function handleOrientation(event) {
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
-  baseOffset = currentHeading;
+  baseOffset = rawHeading;
+  currentHeading = 0;
+  lastDiff = 0;
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
