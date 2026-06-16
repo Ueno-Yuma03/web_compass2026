@@ -70,7 +70,7 @@ function handleOrientation(event) {
   currentHeading += diff * 0.12;
   currentHeading = (currentHeading + 360) % 360;
 
-  let displayHeading = corrected - baseOffset;
+  let displayHeading = corrected;
   displayHeading = (displayHeading + 360) % 360;
   compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
 
