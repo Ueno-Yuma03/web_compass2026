@@ -176,14 +176,23 @@
         }
     }
 
-    .line {
+    .fan {
         z-index: 1;
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 4px;
-        height: 51%;
-        background: red;
+        width: 95%;
+        height: 95%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: 
+            conic-gradient(
+                transparent 0deg,
+                rgba(255, 255, 0, .7) 0deg 15deg,
+                transparent 15deg 345deg,
+                rgba(255, 255, 0, .7) 345deg 360deg
+            )
+        ;
         transform-origin: bottom center;
     }
 

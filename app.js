@@ -140,12 +140,12 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
   //線の描画
   //残っている場合、線を消す
-  document.querySelectorAll('.line').forEach(l => l.remove());
+  document.querySelectorAll('.fan').forEach(l => l.remove());
   const cirarea = document.querySelector('.dial');
-  const line = document.createElement('div');
-  line.classList.add('line');
+  const fan = document.createElement('div');
+  fan.classList.add('fan');
 
   // 常に北方向（0°）なので回転なし
-  line.style.transform = `translate(-50%, -100%) rotate(0deg)`;
-  cirarea.appendChild(line);
+  fan.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+  cirarea.appendChild(fan);
 });
