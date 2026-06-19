@@ -102,6 +102,13 @@
         width: 200px;
     }
 
+    #ang_val {
+        text-align: center;
+        font-size: 25px;
+        font-weight: bold;
+        margin-top: 25px;
+    }
+
 /*コンパスの針*/
     .arrow{
         position: absolute;

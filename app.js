@@ -92,11 +92,14 @@ function handleOrientation(event) {
   displayHeading = (displayHeading + 360) % 360;
   updateCompass();    //すぐに描画用
   compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
-  ang_val.textContent = `
-    方角: ${heading.toFixed(1)}
-    現在の角度: ${displayHeading.toFixed(1)}
-    角度差: ${diff.toFixed(1)}
-    `;
+
+  if (diff > 0) {
+    ang_val.textContent = `右へ ${diff.toFixed(1)}°ずれてます！`;
+  } else if (diff < 0) {
+    ang_val.textContent = `左へ ${Math.abs(diff).toFixed(1)}°ずれてます！`;
+  } else {
+    ang_val.textContent = "ぴったりです。";
+  }
 }
 
 function updateCompass(){
