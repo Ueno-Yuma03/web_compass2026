@@ -3,6 +3,7 @@ const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 const container = document.getElementById("deg_labels");
 
+let started = false;
 let lastDiff = 0;
 let baseHeading = 0;
 let baseOffset = 0;
@@ -62,6 +63,11 @@ function createDeg_labels(){
 }
 
 function handleOrientation(event) {
+  //ボタンを押すまで待機
+  if(!started){
+    return;  
+  }
+
   let heading;
 
   // iOS
@@ -113,6 +119,8 @@ function updateCompass(){
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   const button = e.currentTarget;
+  started = true;
+
   baseOffset = rawHeading;
   displayHeading = 0;
   lastDiff = 0;
@@ -135,7 +143,6 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   //クリック(タップ)位置
   const x = e.clientX - rect.left - size / 2;
   const y = e.clientY - rect.top - size / 2;
-
   ripple.style.left = x + 'px';
   ripple.style.top = y + 'px';
 
