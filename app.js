@@ -1,6 +1,7 @@
 const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
+const container = document.getElementById("deg_labels");
 
 let lastDiff = 0;
 let baseHeading = 0;
@@ -8,7 +9,10 @@ let baseOffset = 0;
 let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 
-window.addEventListener("load", initOrientation);
+window.addEventListener("load", () => {
+    createDeg_labels();
+    initOrientation();
+});
 function initOrientation() {
 
   //iOS判定（許可が必要な場合）
@@ -34,6 +38,29 @@ function initOrientation() {
   }
 }
 
+function createDeg_labels(){
+  const dial = document.querySelector(".dial");
+  const container = document.createElement("div");
+  container.id = "deg_labels";
+  dial.appendChild(container);
+
+  const r = dial.offsetWidth * 0.67;
+  const degree = [0, 15, 30, 45, 60, 75, 90, 120, 150, 180, 210, 240, 270, 285, 300, 315, 330, 345];
+  degree.forEach(deg =>{
+    const label = document.createElement("div");
+    label.className = "degreeLabel";
+    label.textContent = deg + "°";
+
+    const rad = (deg - 90) * Math.PI / 180;
+    const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
+    const y = 50 + (r * Math.sin(rad) / dial.offsetWidth * 100);
+    label.style.left = x + "%";
+    label.style.top = y + "%";
+
+    container.appendChild(label);
+  })
+}
+
 function handleOrientation(event) {
   let heading;
 
@@ -50,8 +77,6 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
 
-  //補正(キャリブレーション用)
-  let corrected = (heading - baseOffset + 360) % 360;
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -87,6 +112,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   baseOffset = rawHeading;
   displayHeading = 0;
   lastDiff = 0;
+  updateCompass();
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');

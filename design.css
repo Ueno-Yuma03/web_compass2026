@@ -46,7 +46,7 @@
         /*外側リングの線*/
           repeating-conic-gradient(
           rgba(0,0,0,0.4) 0deg 1deg,
-            transparent 1deg 22.5deg
+            transparent 1deg 15deg
           );
     }
     /*外側と内側の間の円*/
@@ -62,8 +62,8 @@
         z-index: 0;
         /* 外リングの線 */
         background: repeating-conic-gradient(
-        black 1deg 22deg,  /* 少しオフセット */
-          transparent 22.5deg 23.5deg
+        black 1deg 15deg,  /* 少しオフセット */
+          transparent 15deg 16deg
         );
         top: 50%;
         left: 50%;
@@ -73,12 +73,12 @@
         -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
     }
         
-    /*中心に白円(16等分線分が汚くならないように)*/
+    /*中心に白円(16等分線分の見た目を整えるため*/
     .circle::after {
         content: "";
         position: absolute;
-        width: 25%;
-        height: 25%;
+        width: 45%;
+        height: 45%;
         background: white;
         border-radius: 50%;
         top: 50%;
@@ -126,8 +126,8 @@
         left: 50%;
         transform: translate(-50%, -100%);
         transform-origin: bottom center;
-        width: 160%;
-        height: 40%;
+        width: 150%;
+        height: 35%;
         z-index: 2;
         background: linear-gradient(to bottom, red, darkred);
         /* ↓これが本体 */
@@ -187,20 +187,29 @@
         transform-origin: bottom center;
     }
 
-    .label {
+    .deg_labels {
         z-index: 5;
         position: absolute;
-        --radius: 32vw;
         transform-origin: center;
         font-weight: bold;
         color: black;
+        transform:translate(-50%, -50%);
         text-shadow:
-          -2px -2px 0 white,
-          2px -2px 0 white,
-          -2px 2px 0 white,
-          -2px -2px 0 white;
+          -1px -1px 0 white,
+          1px -1px 0 white,
+          -1px 1px 0 white,
+          -1px -1px 0 white;
     }
-    .north { top: -22%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
-    .south { bottom: -21%; left: 50%; transform: translate(-50%, 0); font-size: 150%;}
-    .east  { right: -18%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
-    .west  { left: -20%; top: 50%; transform: translate(0, -50%); font-size: 150%;}
+
+    .degreeLabel{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    font-size:14px;
+    font-weight:bold;
+    z-index:5;
+    text-shadow:
+      -1px -1px 0 white,
+       1px -1px 0 white,
+      -1px  1px 0 white,
+       1px  1px 0 white;
+}
