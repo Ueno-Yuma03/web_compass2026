@@ -11,9 +11,11 @@ let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 
 window.addEventListener("load", () => {
+    createTicks();
     createDeg_labels();
     initOrientation();
 });
+
 function initOrientation() {
 
   //iOS判定（許可が必要な場合）
@@ -44,9 +46,8 @@ function createDeg_labels(){
   const container = document.createElement("div");
   container.id = "deg_labels";
   dial.appendChild(container);
-
-  const r = dial.offsetWidth * 0.67;
-  const degree = [0, 15, 30, 45, 60, 75, 90, 120, 150, 180, 210, 240, 270, 285, 300, 315, 330, 345];
+  const r = dial.offsetWidth * 0.7;
+  const degree = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
   degree.forEach(deg =>{
     const label = document.createElement("div");
     label.className = "degreeLabel";
@@ -62,12 +63,38 @@ function createDeg_labels(){
   })
 }
 
-function handleOrientation(event) {
-  //ボタンを押すまで待機
-  if(!started){
-    return;  
+function createTicks(){
+  const svg = document.querySelector(".ticks");
+  for (let i=0; i<360; i++){
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    //長さの設定
+    const cx = 150;
+    const cy = 150;
+    let r1, r2;
+    if(i % 15 === 0){
+      r1 = 150;
+      r2 = 132;
+    }
+    else if(i % 5 === 0){
+      r1 = 150;
+      r2 = 135;
+    }
+    else{
+      r1 = 150;
+      r2 = 140;
+    }
+    line.setAttribute("x1", cx);
+    line.setAttribute("y1", cy - r1);
+    line.setAttribute("x2", cx);
+    line.setAttribute("y2", cy - r2);
+    line.setAttribute("stroke", "black");
+    line.setAttribute("stroke-width", "1");
+    line.setAttribute("transform", `rotate(${i} 150 150)`);
+    svg.appendChild(line);
   }
+}
 
+function handleOrientation(event) {
   let heading;
 
   // iOS
@@ -83,6 +110,11 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
 
+  //ボタンを押すまで待機
+  if(!started){
+    return;  
+  }
+
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -97,24 +129,37 @@ function handleOrientation(event) {
   displayHeading += diff * 0.2;
   displayHeading = (displayHeading + 360) % 360;
   updateCompass();    //すぐに描画用
-  compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
+  /*compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
 
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   if (theDiff > 0) {
-    ang_val.textContent = `右へ ${theDiff.toFixed(1)}°ずれてます！`;
+    const angle1 = theDiff.toFixed(1);
+    ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
   } else if (theDiff < 0) {
-    ang_val.textContent = `左へ ${Math.abs(theDiff).toFixed(1)}°ずれてます！`;
+    const angle = Math.abs(theDiff).toFixed(1);
+    ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
-  }
+  }*/
 }
 
 function updateCompass(){
   compass.style.transform =`translate(-50%, -50%) rotate(${-displayHeading}deg)`;
-  ang_val.textContent = `
-    方角:${rawHeading.toFixed(1)}
-    現在の角度:${displayHeading.toFixed(1)}
-  `;
+  const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
+  const angle = Math.abs(theDiff);
+  let cls;
+  if (angle < 15) {
+    cls = "angle-in";
+  } else {
+    cls = "angle-out";
+  }
+  if (theDiff > 0) {
+    ang_val.innerHTML = `右へ <span class="${cls}">${angle.toFixed(1)}°</span> ずれてます！`;
+  } else if (theDiff < 0) {
+    ang_val.innerHTML = `左へ <span class="${cls}">${angle.toFixed(1)}°</span> ずれてます！`;
+  } else {
+    ang_val.textContent = "ぴったりです。";
+  }
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
@@ -125,6 +170,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   displayHeading = 0;
   lastDiff = 0;
   updateCompass();
+  button.textContent = "再キャリブレーション";
   
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
@@ -137,7 +183,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
   ripple.classList.add('ripple');
 
   const rect = button.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height) * 0.5;
+  const size = Math.max(rect.width, rect.height);
   ripple.style.width = ripple.style.height = size + 'px';
 
   //クリック(タップ)位置

@@ -1,31 +1,27 @@
 @charset "UTF-8";
 /*body要素*/
     body {
-        margin: 0;
-        width: 100dvw;
-        height: 100dvh;
-        font-size: 15px;
-        font-weight: bold;
-    }
-/*コンパスを構成する要素 .compass_wrapper */
-    .compass_wrapper {
-        position: relative;
-        width:  100%;
-        height: 100%;
-        max-width: 350px;
-        max-height: 350px;
-        display: flex;              /* 中央寄せ用*/ 
-        align-items: center;        /* 縦方向中央*/
-        justify-content: center;    /* 横方向中央 */
+        margin:0;
+        min-height:100dvh;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
     }
 
+/*コンパスを構成する要素 .compass_wrapper */
+    .compass_wrapper {
+        position:relative;
+        width:min(65vw,450px);
+        aspect-ratio: 1;
+        margin-top:40px;
+    }
     /* .circle~.circle1 を統括する要素(回転させる要素) .dial*/
     .dial {
         position: absolute;
         width:  65%;
         aspect-ratio: 1;
-        max-width:  300px;
-        max-height: 300px;
+        max-width:  450px;
+        max-height: 450px;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -36,45 +32,21 @@
         width: 100%;
         height: 100%;
         background-color: white;
-        border: 5px solid black; /* 枠線 */
+        border: 3px solid black; /* 枠線 */
         border-radius: 50%;
         box-sizing: border-box;
         top: 0%;
         left: 0%;
         /* 16分割線 */
         background:
-        /*外側リングの線*/
+        /*内側リングの灰色線*/
           repeating-conic-gradient(
-          rgba(0,0,0,0.4) 0deg 1deg,
-            transparent 1deg 15deg
+          rgba(0,0,0,0.4) -0.5deg 0.5deg,
+            transparent 0.5deg 14.5deg
           );
     }
-    /*外側と内側の間の円*/
-    .circle::before {
-        content: "";
-        position: absolute;
-        /* 少し外側に広げる */
-        width: 120%;
-        height: 120%;
-        border: 3px solid black;
-        border-radius: 50%;
-        /* 下に潜らせる */
-        z-index: 0;
-        /* 外リングの線 */
-        background: repeating-conic-gradient(
-        black 1deg 15deg,  /* 少しオフセット */
-          transparent 15deg 16deg
-        );
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        /* 内側をくり抜く */
-        mask: radial-gradient(circle, transparent 60%, black 61%);
-        -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
-    }
-        
     /*中心に白円(16等分線分の見た目を整えるため*/
-    .circle::after {
+    .circle::before {
         content: "";
         position: absolute;
         width: 45%;
@@ -85,21 +57,53 @@
         left: 50%;
         transform: translate(-50%, -50%);
     }
-/*外側の円*/
-    .circle1 {
+    /*外側の円*/
+    .circle::after {
+        content: "";
         position: absolute;
-        width: 130%;
-        height: 130%;
-        border: 2px solid black;
+        width: 115%;
+        height: 115%;
+        border: 5px solid black;
         border-radius: 50%;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 0;
+        z-index: 1;
     }
 
-    #compass {
-        width: 200px;
+/*最も外側にある黒いリング*/
+    .circle1 {
+        position: absolute;
+        /* 少し外側に広げる */
+        width: 130%;
+        height: 130%;
+        border: 3px solid black;
+        border-radius: 50%;
+        /* 下に潜らせる */
+        z-index: 0;
+        /* 外リングの線 */
+        background: repeating-conic-gradient(
+        black 0.5deg 29.5deg,  /* 少しオフセット */
+          transparent 29.5deg 30.5deg
+        );
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /* 内側をくり抜く */
+        mask: radial-gradient(circle, transparent 63%, black 64%);
+        -webkit-mask: radial-gradient(circle, transparent 63%, black 64%);
+    }
+
+/*svg（1°ずつの目盛り)のコード*/
+    .ticks{
+    position:absolute;
+    width:115%;
+    height:115%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    z-index:1;
     }
 
     #ang_val {
@@ -112,10 +116,10 @@
 /*コンパスの針*/
     .arrow{
         position: absolute;
-        width: 2%;
-        height: 32%;
         max-width: 10px;
         max-height: 140px;
+        width: 2%;
+        height: 30%;
         background: linear-gradient(to bottom, darkred, black);
         top: 50%;
         left: 50%;
@@ -134,7 +138,7 @@
         transform: translate(-50%, -100%);
         transform-origin: bottom center;
         width: 150%;
-        height: 35%;
+        height: 30%;
         z-index: 2;
         background: linear-gradient(to bottom, red, darkred);
         /* ↓これが本体 */
@@ -147,25 +151,30 @@
         bottom: 0px;
         left: 50%;
         transform: translate(-50%, 50%);
-        width: 300%;
-        height: 19%;
+        width: 285%;
+        height: 20%;
         background: black;
         border-radius: 50%;
     }
 
 /*タップすると針を追加するボタン*/
     .ripple-btn {
-        position: absolute;
+        position:static;
+        margin-top:30px;
         display: inline-block;
-        padding: 1.0em 2.0em;
+        padding: 0.3em 1em;
         text-decoration: none;
-        background: #6d6f75; /*ボタンの色*/
-        color: #FFF;
-        border-bottom: solid 4px #37373d;
-        border-radius: 2%;
-        left: 20%;
+        background: #FFF;
+        color: #777779;
+        border: solid 2px #777779;
+        border-radius: 2px;
+        left: 50%;
         top: 80%;
-        transform: translate(-25%, 0%);
+        transform: translate(-50%, 0%);
+    }
+    .ripple-btn:hover{
+        background: #777779;
+        color: #FFF;
     }
     /* 波紋 */
     .ripple {
@@ -183,19 +192,20 @@
         }
     }
 
+/*ボタンを押した後に扇形の範囲を表示する*/
     .fan {
         z-index: 1;
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 95%;
-        height: 95%;
+        width: 98%;
+        height: 98%;
         transform: translate(-50%, -50%);
         border-radius: 50%;
         background: 
             conic-gradient(
                 transparent 0deg,
-                rgba(255, 255, 0, .7) 0deg 15deg,
+                rgba(255, 255, 0, 0.7) 0deg 15deg,
                 transparent 15deg 345deg,
                 rgba(255, 255, 0, .7) 345deg 360deg
             )
@@ -203,6 +213,7 @@
         transform-origin: bottom center;
     }
 
+/*ラベルの要素*/
     .deg_labels {
         z-index: 5;
         position: absolute;
@@ -216,7 +227,7 @@
           -1px 1px 0 white,
           -1px -1px 0 white;
     }
-
+/*ラベルの要素その２*/
     .degreeLabel{
     position:absolute;
     transform:translate(-50%,-50%);
@@ -228,4 +239,13 @@
        1px -1px 0 white,
       -1px  1px 0 white,
        1px  1px 0 white;
+}
+
+.angle-in{
+    color: #ffff00b3;
+    font-weight: bold;
+}
+.angle-out{
+    color: red;
+    font-weight: bold;
 }
