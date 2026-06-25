@@ -68,19 +68,20 @@ function createTicks(){
   for (let i=0; i<360; i++){
     const line = document.createElementNS("http://www.w3.org/2000/svg","line");
     //長さの設定
-    const cx = 150;
-    const cy = 150;
+    const size = 300;
+    const cx = size/2;
+    const cy = size/2;
     let r1, r2;
     if(i % 15 === 0){
-      r1 = 150;
+      r1 = 148;
       r2 = 132;
     }
     else if(i % 5 === 0){
-      r1 = 150;
+      r1 = 148;
       r2 = 135;
     }
     else{
-      r1 = 150;
+      r1 = 148;
       r2 = 140;
     }
     line.setAttribute("x1", cx);
@@ -88,7 +89,7 @@ function createTicks(){
     line.setAttribute("x2", cx);
     line.setAttribute("y2", cy - r2);
     line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", "1");
+    line.setAttribute("stroke-width", "1.5");
     line.setAttribute("transform", `rotate(${i} 150 150)`);
     svg.appendChild(line);
   }
