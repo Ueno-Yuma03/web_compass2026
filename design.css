@@ -11,14 +11,14 @@
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
         position:relative;
-        width:min(70vw,400px);
+        width:min(60vw,400px);
         aspect-ratio: 1;
         margin-top:40px;
     }
     /* .circle~.circle1 を統括する要素(回転させる要素) .dial*/
     .dial {
         position: absolute;
-        width:  100%;
+        width:  75%;
         aspect-ratio: 1;
         max-width:  400px;
         max-height: 400px;
@@ -117,9 +117,9 @@
     .arrow{
         position: absolute;
         max-width: 10px;
-        max-height: 140px;
+        max-height: 200px;
         width: 2%;
-        height: 30%;
+        height: 33%;
         background: linear-gradient(to bottom, darkred, black);
         top: 50%;
         left: 50%;
@@ -152,7 +152,7 @@
         left: 50%;
         transform: translate(-50%, 50%);
         width: 285%;
-        height: 20%;
+        height: 18%;
         background: black;
         border-radius: 50%;
     }
