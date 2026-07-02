@@ -11,7 +11,7 @@
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
         position:relative;
-        width:min(60vw,400px);
+        width:min(65vw,400px);
         aspect-ratio: 1;
         margin-top:40px;
     }
