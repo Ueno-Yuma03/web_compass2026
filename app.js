@@ -43,15 +43,14 @@ function initOrientation() {
 
 function createDeg_labels(){
   const dial = document.querySelector(".dial");
-  const container = document.createElement("div");
-  container.id = "deg_labels";
+  const container = document.getElementById("deg_labels");
+  container.innerHTML = "";
   dial.appendChild(container);
-  const r = dial.offsetWidth * 0.7;
-  const degree = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-  degree.forEach(deg =>{
+  const r = dial.offsetWidth * 0.72;
+  for (let deg = 0; deg < 360; deg += 30) {
     const label = document.createElement("div");
     label.className = "degreeLabel";
-    label.textContent = deg + "°";
+    label.textContent = Math.min(deg, 360 - deg) + "°";
 
     const rad = (deg - 90) * Math.PI / 180;
     const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
@@ -60,7 +59,7 @@ function createDeg_labels(){
     label.style.top = y + "%";
 
     container.appendChild(label);
-  })
+  }
 }
 
 function createTicks(){
@@ -130,18 +129,6 @@ function handleOrientation(event) {
   displayHeading += diff * 0.2;
   displayHeading = (displayHeading + 360) % 360;
   updateCompass();    //すぐに描画用
-  /*compass.style.transform = `translate(-50%, -50%) rotate(${-displayHeading}deg)`;
-
-  const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
-  if (theDiff > 0) {
-    const angle1 = theDiff.toFixed(1);
-    ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
-  } else if (theDiff < 0) {
-    const angle = Math.abs(theDiff).toFixed(1);
-    ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
-  } else {
-    ang_val.textContent = "ぴったりです。";
-  }*/
 }
 
 function updateCompass(){
