@@ -11,7 +11,7 @@
 /*コンパスを構成する要素 .compass_wrapper */
     .compass_wrapper {
         position:relative;
-        width:min(70vw,400px);
+        width:min(80vw,400px);
         aspect-ratio: 1;
         margin-top:40px;
     }
@@ -19,6 +19,7 @@
     .dial {
         position: absolute;
         width:  75%;
+        height: 75%;
         aspect-ratio: 1;
         max-width:  400px;
         max-height: 400px;
