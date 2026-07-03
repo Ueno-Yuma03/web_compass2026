@@ -193,7 +193,7 @@ function updateFan(angle){
       debug.innerHTML =
         `angle=${angle}<br>` +
         `rad=${(angle*Math.PI/180).toFixed(2)}`;
-        
+
     const size = 300; 
     const cx = size/2;
     const cy = size/2;
@@ -203,8 +203,8 @@ function updateFan(angle){
     const rad = (angle) * Math.PI / 180;
     const x = cx + r * Math.sin(rad);
     const y = cy - r * Math.cos(rad);
-    const largeArc = Math.abs(angle) > 180 ? 1 : 0;
-    const sweep = angle >= 0 ? 0 : 1;
+    const largeArc =  0;
+    const sweep = angle >= 0 ? 1 : 0;
     const d = `
         M ${cx} ${cy}
         L ${cx} ${cy-r}
