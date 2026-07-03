@@ -189,7 +189,6 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
-    console.log(fanPath);
     const cx = 150;
     const cy = 150;
     const r = 120;
