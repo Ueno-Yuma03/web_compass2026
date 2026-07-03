@@ -198,7 +198,7 @@ function updateFan(angle){
     const x = cx + r * Math.sin(rad);
     const y = cy - r * Math.cos(rad);
     const largeArc = Math.abs(angle) > 180 ? 1 : 0;
-    const sweep = angle >= 0 ? 0 : 1;
+    const sweep = angle >= 0 ? 1 : 0;
     const d = `
         M ${cx} ${cy}
         L ${cx} ${cy-r}
