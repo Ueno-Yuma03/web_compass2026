@@ -189,12 +189,13 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
-    const cx = 150;
-    const cy = 150;
-    const r = 120;
+    const size = 300; 
+    const cx = size/2;
+    const cy = size/2;
+    const r = size/2 - 3;
 
     // 時計回りにしたいので符号を反転
-    const rad = (-angle) * Math.PI / 180;
+    const rad = (angle) * Math.PI / 180;
     const x = cx + r * Math.sin(rad);
     const y = cy - r * Math.cos(rad);
     const largeArc = Math.abs(angle) > 180 ? 1 : 0;
