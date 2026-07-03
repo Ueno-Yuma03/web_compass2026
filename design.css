@@ -21,8 +21,8 @@
         width:  75%;
         height: 75%;
         aspect-ratio: 1;
-        max-width:  400px;
-        max-height: 400px;
+        max-width:  300px;
+        max-height: 300px;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -194,24 +194,20 @@
     }
 
 /*ボタンを押した後に扇形の範囲を表示する*/
-    .fan {
+    .fan-svg {
         z-index: 1;
         position: absolute;
         left: 50%;
         top: 50%;
         width: 98%;
         height: 98%;
+        pointer-events: none;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        background: 
-            conic-gradient(
-                transparent 0deg,
-                rgba(255, 255, 0, 0.7) 0deg 15deg,
-                transparent 15deg 345deg,
-                rgba(255, 255, 0, .7) 345deg 360deg
-            )
-        ;
         transform-origin: bottom center;
+    }
+    #fanPath{
+        fill:rgba(255,0,0,0.75)
     }
 
 /*ラベルの要素*/

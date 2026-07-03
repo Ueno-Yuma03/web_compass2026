@@ -2,6 +2,7 @@ const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 const container = document.getElementById("deg_labels");
+const fanPath = document.getElementById("fanPath");
 
 let started = false;
 let lastDiff = 0;
@@ -62,6 +63,7 @@ function createDeg_labels(){
   }
 }
 
+//svgを用いた一目盛りのコード
 function createTicks(){
   const svg = document.querySelector(".ticks");
   for (let i=0; i<360; i++){
@@ -70,7 +72,6 @@ function createTicks(){
     const size = 300;
     const cx = size/2;
     const cy = size/2;
-    let r1, r2;
     if(i % 15 === 0){
       r1 = 148;
       r2 = 132;
@@ -83,13 +84,14 @@ function createTicks(){
       r1 = 148;
       r2 = 140;
     }
+
     line.setAttribute("x1", cx);
     line.setAttribute("y1", cy - r1);
     line.setAttribute("x2", cx);
     line.setAttribute("y2", cy - r2);
     line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", "1.5");
-    line.setAttribute("transform", `rotate(${i} 150 150)`);
+    line.setAttribute("stroke-width", 1.5);
+    line.setAttribute("transform", `rotate(${i} ${cx} ${cy})`);
     svg.appendChild(line);
   }
 }
@@ -108,8 +110,8 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  rawHeading = heading;
 
+  rawHeading = heading;
   //ボタンを押すまで待機
   if(!started){
     return;  
@@ -125,7 +127,7 @@ function handleOrientation(event) {
     displayHeading += diff * 0.2;
     displayHeading = (displayHeading + 360) % 360;
   }
-
+  
   displayHeading += diff * 0.2;
   displayHeading = (displayHeading + 360) % 360;
   updateCompass();    //すぐに描画用
@@ -148,6 +150,7 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
+  updateFan(theDiff);
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
@@ -182,15 +185,25 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
   button.appendChild(ripple);
   setTimeout(() => ripple.remove(), 400);
-
-  //線の描画
-  //残っている場合、線を消す
-  document.querySelectorAll('.fan').forEach(l => l.remove());
-  const cirarea = document.querySelector('.dial');
-  const fan = document.createElement('div');
-  fan.classList.add('fan');
-
-  // 常に北方向（0°）なので回転なし
-  fan.style.transform = `translate(-50%, -50%) rotate(0deg)`;
-  cirarea.appendChild(fan);
 });
+
+//扇形の範囲を描画する関数
+function updateFan(angle){
+    const cx = 150;
+    const cy = 150;
+    const r = 120;
+
+    // 時計回りにしたいので符号を反転
+    const rad = (-angle) * Math.PI / 180;
+    const x = cx + r * Math.sin(rad);
+    const y = cy - r * Math.cos(rad);
+    const largeArc = Math.abs(angle) > 180 ? 1 : 0;
+    const sweep = angle >= 0 ? 0 : 1;
+    const d = `
+        M ${cx} ${cy}
+        L ${cx} ${cy-r}
+        A ${r} ${r} 0 ${largeArc} ${sweep} ${x} ${y}
+        Z
+    `;
+    fanPath.setAttribute("d", d);
+}
