@@ -135,6 +135,7 @@ function handleOrientation(event) {
 }
 
 function updateCompass(){
+  alert("updateCompass");
   compass.style.transform =`translate(-50%, -50%) rotate(${-displayHeading}deg)`;
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   const angle = Math.abs(theDiff);
@@ -151,9 +152,7 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
-  debug.innerHTML =
-    `theDiff=${theDiff}<br>` +
-    `displayHeading=${displayHeading.toFixed(1)}`;
+  debug.innerHTML =`theDiff=${theDiff}<br>` +`displayHeading=${displayHeading.toFixed(1)}`;
   updateFan(displayHeading);
 }
 
