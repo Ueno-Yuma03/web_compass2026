@@ -151,7 +151,7 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
-  updateFan(theDiff);
+  updateFan(displayHeading);
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
