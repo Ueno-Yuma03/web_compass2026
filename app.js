@@ -152,10 +152,6 @@ function updateCompass(){
     ang_val.textContent = "ぴったりです。";
   }
   updateFan(theDiff);
-  debug.innerHTML =
-    `theDiff = ${theDiff}<br>
-    displayHeading = ${displayHeading.toFixed(1)}<br>
-    rawHeading = ${rawHeading.toFixed(1)}`;
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
@@ -194,7 +190,10 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
-    console.log(angle);
+      debug.innerHTML =
+        `angle=${angle}<br>` +
+        `rad=${(angle*Math.PI/180).toFixed(2)}`;
+        
     const size = 300; 
     const cx = size/2;
     const cy = size/2;
