@@ -3,6 +3,7 @@ const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 const container = document.getElementById("deg_labels");
 const fanPath = document.getElementById("fanPath");
+const debug = document.getElementById("debug");
 
 let started = false;
 let lastDiff = 0;
@@ -151,6 +152,10 @@ function updateCompass(){
     ang_val.textContent = "ぴったりです。";
   }
   updateFan(theDiff);
+  debug.innerHTML =
+    `theDiff = ${theDiff}<br>
+    displayHeading = ${displayHeading.toFixed(1)}<br>
+    rawHeading = ${rawHeading.toFixed(1)}`;
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
@@ -189,7 +194,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
-    console.log(fanPath);
+    console.log(angle);
     const size = 300; 
     const cx = size/2;
     const cy = size/2;
