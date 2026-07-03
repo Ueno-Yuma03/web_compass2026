@@ -127,7 +127,7 @@ function handleOrientation(event) {
     displayHeading += diff * 0.2;
     displayHeading = (displayHeading + 360) % 360;
   }
-  
+
   displayHeading += diff * 0.2;
   displayHeading = (displayHeading + 360) % 360;
   updateCompass();    //すぐに描画用
@@ -189,6 +189,7 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
+    console.log(fanPath);
     const cx = 150;
     const cy = 150;
     const r = 120;
