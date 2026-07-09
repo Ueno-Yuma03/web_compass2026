@@ -158,6 +158,14 @@
         border-radius: 50%;
     }
 
+    /*反転前にカウントダウン*/
+    #countdown{
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(75, 75, 75);
+        text-align: center;
+    }
+
 /*タップすると針を追加するボタン*/
     .ripple-btn {
         position:static;
@@ -206,8 +214,11 @@
         border-radius: 50%;
         transform-origin: bottom center;
     }
-    #fanPath{
-        fill:rgba(255,0,0,0.75)
+    .fan-normal {
+    fill: rgba(255, 0, 0, 0.75);
+    }
+    .fan-reverse {
+    fill: rgba(0, 100, 255, 0.75);
     }
 
 /*ラベルの要素*/

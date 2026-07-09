@@ -2,10 +2,14 @@ const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 const container = document.getElementById("deg_labels");
-const fanPath = document.getElementById("fanPath");
+const fanPath = document.querySelector(".fanPath");
 const debug = document.getElementById("debug");
+const countdown = document.getElementById("countdown");
 
 let started = false;
+let zero_standerd = true;
+let timer = null;       //5秒後に状態反転
+let cnt_DOWN = null;    //カウントダウン
 let lastDiff = 0;
 let baseHeading = 0;
 let baseOffset = 0;
@@ -117,7 +121,6 @@ function handleOrientation(event) {
   if(!started){
     return;  
   }
-
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -128,30 +131,80 @@ function handleOrientation(event) {
     displayHeading += diff * 0.2;
     displayHeading = (displayHeading + 360) % 360;
   }
-
-  displayHeading += diff * 0.2;
-  displayHeading = (displayHeading + 360) % 360;
+  checkMode();        //基準反転のフラグ管理
   updateCompass();    //すぐに描画用
 }
 
 function updateCompass(){
   const range = 45;       //円一周分にしたい角度
-  let visualHeading = displayHeading * 180 / range;
+  let heading;
+  if (zero_standerd) {
+    heading = displayHeading;
+  }else{
+    heading = ((displayHeading - 180 + 540) % 360) - 180;
+  }
+  const limitHeading = Math.max(-range, Math.min(range, heading));
+  let visualHeading = limitHeading * 180 / range;
   compass.style.transform = `translate(-50%, -50%) rotate(${-visualHeading}deg)`;
 
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   const angle = Math.abs(theDiff);
   if (theDiff > 0) {
-    const angle = theDiff.toFixed(1);
     ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
   } else if (theDiff < 0) {
-    const angle = Math.abs(theDiff).toFixed(1);
     ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
   }
   debug.innerHTML =`theDiff=${theDiff}<br>` +`displayHeading=${displayHeading.toFixed(1)}`;
   updateFan(visualHeading);
+}
+
+function checkMode(){
+  // 180°付近に5秒以上いたら基準の反転
+  const delay = 5000;     //5秒
+  const diff10 = Math.abs(displayHeading - 180);
+  if (zero_standerd) {
+    if (diff10 <= 10 && timer === null) {     // 170~190°を180°付近とする
+      setCountdown("反転しています", false);
+    } else {
+      clearTimeout(timer);
+      timer = null;
+      clearInterval(cnt_DOWN);
+      cnt_DOWN = null;
+      countdown.innerHTML = "";
+    }
+  } else{ 
+    if(diff10 >= 170 && timer === null){      // 350~10°を0°付近とする
+      setCountdown("元に戻します", true);
+    } else{
+      clearTimeout(timer);
+      timer = null;
+      clearInterval(cnt_DOWN);
+      cnt_DOWN = null;
+      countdown.innerHTML = "";
+    }
+  }
+}
+
+function setCountdown(message, nextState){
+  //checkMode()の実行部分
+  const startTime = Date.now();
+  // 5秒後に状態切替
+  timer = setTimeout(() => {
+    zero_standerd = nextState;
+    clearInterval(cnt_DOWN);
+    cnt_DOWN = null;
+    timer = null;
+    countdown.innerHTML = "";}, 5000);
+  //表示更新
+  cnt_DOWN = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    //2秒経過後から表示
+    if (elapsed >= 2000) {
+      const remain = Math.ceil((5000 - elapsed) / 1000);
+      const dots = ".".repeat(Math.floor(elapsed / 250) % 4);
+      countdown.innerHTML =`${message}${dots}<br>${remain}`;}}, 250);
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
@@ -190,23 +243,26 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 
 //扇形の範囲を描画する関数
 function updateFan(angle){
-    angle = ((angle + 540) % 360) - 180;
-    const size = 300; 
-    const cx = size/2;
-    const cy = size/2;
-    const r = size/2 - 4;
+  //classList.toggle() ← cssの２つのクラスを反転させる
+  fanPath.classList.toggle("fan-normal", zero_standerd);
+  fanPath.classList.toggle("fan-reverse", !zero_standerd);
+  angle = ((angle + 540) % 360) - 180;
+  const size = 300; 
+  const cx = size/2;
+  const cy = size/2;
+  const r = size/2 - 4;
 
-    // 時計回りにしたいので符号を反転
-    const rad = angle * Math.PI / 180;
-    const x = cx + r * Math.sin(rad);
-    const y = cy - r * Math.cos(rad);
-    const largeArc =  0;
-    const sweep = angle >= 0 ? 1 : 0;
-    const d = `
-        M ${cx} ${cy}
-        L ${cx} ${cy-r}
-        A ${r} ${r} 0 ${largeArc} ${sweep} ${x} ${y}
-        Z
-    `;
-    fanPath.setAttribute("d", d);
+  // 時計回りにしたいので符号を反転
+  const rad = angle * Math.PI / 180;
+  const x = cx + r * Math.sin(rad);
+  const y = cy - r * Math.cos(rad);
+  const largeArc =  0;
+  const sweep = angle >= 0 ? 1 : 0;
+  const d = `
+      M ${cx} ${cy}
+      L ${cx} ${cy-r}
+      A ${r} ${r} 0 ${largeArc} ${sweep} ${x} ${y}
+      Z
+  `;
+  fanPath.setAttribute("d", d);
 }
