@@ -199,8 +199,8 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 100%;
-        height: 100%;
+        width: 115%;
+        height: 115%;
         pointer-events: none;
         transform: translate(-50%, -50%);
         border-radius: 50%;
