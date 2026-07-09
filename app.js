@@ -135,10 +135,8 @@ function handleOrientation(event) {
 }
 
 function updateCompass(){
-  const gain = 10;
-  let visualHeading = displayHeading * gain;
-  if (visualHeading > 45) visualHeading = 45;
-  if (visualHeading < -45) visualHeading = -45;
+  const range = 45;       //円一周分にしたい角度
+  let visualHeading = displayHeading * 180 / range;
   compass.style.transform = `translate(-50%, -50%) rotate(${-visualHeading}deg)`;
 
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
@@ -153,7 +151,7 @@ function updateCompass(){
     ang_val.textContent = "ぴったりです。";
   }
   debug.innerHTML =`theDiff=${theDiff}<br>` +`displayHeading=${displayHeading.toFixed(1)}`;
-  updateFan(displayHeading);
+  updateFan(visualHeading);
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', function (e) {
