@@ -43,7 +43,7 @@
         /*内側リングの灰色線*/
           repeating-conic-gradient(
           rgba(0,0,0,0.4) -0.5deg 0.5deg,
-            transparent 0.5deg 14.5deg
+            transparent 0.5deg 19.5deg
           );
     }
     /*中心に白円(16等分線分の見た目を整えるため*/

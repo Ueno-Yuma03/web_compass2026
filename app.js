@@ -49,10 +49,10 @@ function createDeg_labels(){
   container.innerHTML = "";
   dial.appendChild(container);
   const r = dial.offsetWidth * 0.72;
-  for (let deg = 0; deg < 360; deg += 30) {
+  for (let deg = 0; deg < 360; deg += 60) {
     const label = document.createElement("div");
     label.className = "degreeLabel";
-    label.textContent = Math.min(deg, 360 - deg) + "°";
+    label.textContent = Math.min(deg/4, 90 - deg/4) + "°";
 
     const rad = (deg - 90) * Math.PI / 180;
     const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
@@ -67,7 +67,7 @@ function createDeg_labels(){
 //svgを用いた一目盛りのコード
 function createTicks(){
   const svg = document.querySelector(".ticks");
-  for (let i=0; i<360; i++){
+  for (let i=0; i<360; i+=4){
     const line = document.createElementNS("http://www.w3.org/2000/svg","line");
     //長さの設定
     const size = 300;
