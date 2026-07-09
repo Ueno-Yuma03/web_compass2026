@@ -237,12 +237,3 @@
       -1px  1px 0 white,
        1px  1px 0 white;
 }
-/*角度によって文字の色を変える*/
-.angle-in{
-    color: #ffd900df;
-    font-weight: bold;
-}
-.angle-out{
-    color: red;
-    font-weight: bold;
-}

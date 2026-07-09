@@ -135,19 +135,20 @@ function handleOrientation(event) {
 }
 
 function updateCompass(){
-  compass.style.transform =`translate(-50%, -50%) rotate(${-displayHeading}deg)`;
+  const gain = 10;
+  let visualHeading = displayHeading * gain;
+  if (visualHeading > 45) visualHeading = 45;
+  if (visualHeading < -45) visualHeading = -45;
+  compass.style.transform = `translate(-50%, -50%) rotate(${-visualHeading}deg)`;
+
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   const angle = Math.abs(theDiff);
-  let cls;
-  if (angle < 15) {
-    cls = "angle-in";
-  } else {
-    cls = "angle-out";
-  }
   if (theDiff > 0) {
-    ang_val.innerHTML = `右へ <span class="${cls}">${angle.toFixed(1)}°</span> ずれてます！`;
+    const angle = theDiff.toFixed(1);
+    ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
   } else if (theDiff < 0) {
-    ang_val.innerHTML = `左へ <span class="${cls}">${angle.toFixed(1)}°</span> ずれてます！`;
+    const angle = Math.abs(theDiff).toFixed(1);
+    ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
   }
