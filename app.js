@@ -195,7 +195,7 @@ function updateFan(angle){
     const size = 300; 
     const cx = size/2;
     const cy = size/2;
-    const r = size/2 - 5;
+    const r = size/2 - 4;
 
     // 時計回りにしたいので符号を反転
     const rad = angle * Math.PI / 180;
