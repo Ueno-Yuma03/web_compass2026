@@ -174,9 +174,11 @@ function checkMode(){
   /*const*/ diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
   /*const*/ diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
   if (zero_standard) {
-    if (diff180 <= 10 && timer === null) {     // 170~190°を180°付近とする
-      setCountdown("反転しています", false);
-    } else {
+    if (diff180 <= 10) {     // 170~190°を180°付近とする
+      if(timer === null){
+        setCountdown("反転しています", false);
+      }
+    } else if(diff > 15){
       clearTimeout(timer);
       timer = null;
       clearInterval(cnt_DOWN);
@@ -184,9 +186,11 @@ function checkMode(){
       countdown.innerHTML = "";
     }
   } else{ 
-    if(diff0 <= 10 && timer === null){      // 350~10°を0°付近とする
-      setCountdown("元に戻します", true);
-    } else{
+    if(diff0 <= 10 ){      // 350~10°を0°付近とする
+      if(timer === null){
+        setCountdown("元に戻します", true);
+      }
+    } else if(diff0 > 15){
       clearTimeout(timer);
       timer = null;
       clearInterval(cnt_DOWN);
