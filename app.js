@@ -139,7 +139,7 @@ function updateCompass(){
   const range = 45;       //円一周分にしたい角度
   let heading;
   if (zero_standard) {
-    heading = displayHeading;
+    heading = ((displayHeading + 540) % 360) - 180;;
   }else{
     heading = ((displayHeading - 180 + 540) % 360) - 180;
   }
