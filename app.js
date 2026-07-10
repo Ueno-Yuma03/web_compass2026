@@ -8,6 +8,8 @@ const countdown = document.getElementById("countdown");
 
 let started = false;
 let zero_standard = true;
+let diff180 = 0;
+let diff0 = 0;
 let timer = null;       //5秒後に状態反転
 let cnt_DOWN = null;    //カウントダウン
 let lastDiff = 0;
@@ -162,15 +164,16 @@ function updateCompass(){
         `display = ${displayHeading.toFixed(1)}<br>`+
         `visual = ${visualHeading.toFixed(1)}<br>`+
         `limit = ${limitHeading.toFixed(1)}<br>`+
-        `heading = ${heading.toFixed(1)}`;
+        `heading = ${heading.toFixed(1)}<br>`+
+        `diff180 = ${diff180.toFixed(1)}<br>`+
+        `diff0 = ${diff0.toFixed(1)}`;
   updateFan(visualHeading);
 }
 
 function checkMode(){
   // 180°付近に5秒以上いたら基準の反転
-  const delay = 5000;     //5秒
-  const diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
-  const diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
+  /*const*/ diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
+  /*const*/ diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
   if (zero_standard) {
     if (diff180 <= 10 && timer === null) {     // 170~190°を180°付近とする
       setCountdown("反転しています", false);
