@@ -129,10 +129,8 @@ function handleOrientation(event) {
   let diff = targetHeading - displayHeading;
   diff = ((diff + 540) % 360) - 180;
   // スムージング
-  if (Math.abs(diff) >= 1) {
     displayHeading += diff * 0.2;
     displayHeading = (displayHeading + 360) % 360;
-  }
   checkMode();        //基準反転のフラグ管理
   updateCompass();    //すぐに描画用
 }
@@ -178,7 +176,7 @@ function checkMode(){
       if(timer === null){
         setCountdown("反転しています", false);
       }
-    } else if(diff > 15){
+    } else if(diff180 > 15){
       clearTimeout(timer);
       timer = null;
       clearInterval(cnt_DOWN);
