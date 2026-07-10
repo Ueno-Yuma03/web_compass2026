@@ -2,7 +2,7 @@ const compass = document.querySelector(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
 const container = document.getElementById("deg_labels");
-const fanPath = document.querySelector(".fanPath");
+const fanPath = document.getElementById("fanPath");
 const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
