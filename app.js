@@ -157,15 +157,16 @@ function updateCompass(){
     ang_val.textContent = "ぴったりです。";
   }
   debug.innerHTML =`theDiff=${theDiff}<br>` +`displayHeading=${displayHeading.toFixed(1)}`;
-  updateFan(limitHeading);
+  updateFan(visualHeading);
 }
 
 function checkMode(){
   // 180°付近に5秒以上いたら基準の反転
   const delay = 5000;     //5秒
-  const diff10 = Math.abs(displayHeading - 180);
+  const diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
+  const diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
   if (zero_standerd) {
-    if (diff10 <= 10 && timer === null) {     // 170~190°を180°付近とする
+    if (diff180 <= 10 && timer === null) {     // 170~190°を180°付近とする
       setCountdown("反転しています", false);
     } else {
       clearTimeout(timer);
@@ -175,7 +176,7 @@ function checkMode(){
       countdown.innerHTML = "";
     }
   } else{ 
-    if(diff10 >= 170 && timer === null){      // 350~10°を0°付近とする
+    if(diff0 <= 10 && timer === null){      // 350~10°を0°付近とする
       setCountdown("元に戻します", true);
     } else{
       clearTimeout(timer);
