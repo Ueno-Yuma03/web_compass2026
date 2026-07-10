@@ -141,7 +141,7 @@ function updateCompass(){
   if (zero_standerd) {
     heading = displayHeading;
   }else{
-    heading = ((displayHeading - 180) % 360) - 180;
+    heading = ((displayHeading - 180 + 540) % 360) - 180;
   }
   const limitHeading = Math.max(-range, Math.min(range, heading));
   let visualHeading = limitHeading * 180 / range;
