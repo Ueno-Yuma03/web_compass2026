@@ -160,13 +160,12 @@ function updateCompass(){
   }
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
-        `theDiff = ${theDiff.toFixed(1)}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
         `visual = ${visualHeading.toFixed(1)}<br>`+
         `limit = ${limitHeading.toFixed(1)}<br>`+
-        `heading = ${heading.toFixed(1)}<br>`+
         `diff180 = ${diff180.toFixed(1)}<br>`+
-        `diff0 = ${diff0.toFixed(1)}`;
+        `diff0 = ${diff0.toFixed(1)}<br>`+
+        `timer = ${timer === null ? "null" : "running"}`;
   updateFan(visualHeading);
 }
 
