@@ -7,7 +7,7 @@ const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
 let started = false;
-let zero_standerd = true;
+let zero_standard = true;
 let timer = null;       //5秒後に状態反転
 let cnt_DOWN = null;    //カウントダウン
 let lastDiff = 0;
@@ -138,7 +138,7 @@ function handleOrientation(event) {
 function updateCompass(){
   const range = 45;       //円一周分にしたい角度
   let heading;
-  if (zero_standerd) {
+  if (zero_standard) {
     heading = displayHeading;
   }else{
     heading = ((displayHeading - 180 + 540) % 360) - 180;
@@ -148,7 +148,7 @@ function updateCompass(){
   compass.style.transform = `translate(-50%, -50%) rotate(${-visualHeading}deg)`;
 
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
-  const angle = Math.abs(theDiff);
+  const angle = Math.abs(theDiff).toFixed(1);
   if (theDiff > 0) {
     ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
   } else if (theDiff < 0) {
@@ -156,7 +156,12 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
-  debug.innerHTML =`theDiff=${theDiff}<br>` +`displayHeading=${displayHeading.toFixed(1)}`;
+  debug.innerHTML =
+        `zero = ${zero_standard}<br>` +
+        `theDiff = ${theDiff.toFixed(1)}<br>` +
+        `display = ${displayHeading.toFixed(1)}<br>`+
+        `visual = ${visualHeading.toFixed(1)}<br>`+
+        `heading = ${heading.toFixed(1)}`;
   updateFan(visualHeading);
 }
 
@@ -165,7 +170,7 @@ function checkMode(){
   const delay = 5000;     //5秒
   const diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
   const diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
-  if (zero_standerd) {
+  if (zero_standard) {
     if (diff180 <= 10 && timer === null) {     // 170~190°を180°付近とする
       setCountdown("反転しています", false);
     } else {
@@ -193,7 +198,7 @@ function setCountdown(message, nextState){
   const startTime = Date.now();
   // 5秒後に状態切替
   timer = setTimeout(() => {
-    zero_standerd = nextState;
+    zero_standard = nextState;
     clearInterval(cnt_DOWN);
     cnt_DOWN = null;
     timer = null;
@@ -245,8 +250,8 @@ document.querySelector('.ripple-btn').addEventListener('click', function (e) {
 //扇形の範囲を描画する関数
 function updateFan(angle){
   //classList.toggle() ← cssの２つのクラスを反転させる
-  fanPath.classList.toggle("fan-normal", zero_standerd);
-  fanPath.classList.toggle("fan-reverse", !zero_standerd);
+  fanPath.classList.toggle("fan-normal", zero_standard);
+  fanPath.classList.toggle("fan-reverse", !zero_standard);
   angle = ((angle + 540) % 360) - 180;
   const size = 300; 
   const cx = size/2;
