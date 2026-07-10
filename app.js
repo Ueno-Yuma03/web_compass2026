@@ -17,10 +17,12 @@ let baseHeading = 0;
 let baseOffset = 0;
 let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
+let labels = [];
 
 window.addEventListener("load", () => {
     createTicks();
     createDeg_labels();
+    labels = document.querySelectorAll(".degreeLabel");
     initOrientation();
 });
 
@@ -58,6 +60,7 @@ function createDeg_labels(){
   for (let deg = 0; deg < 360; deg += 60) {
     const label = document.createElement("div");
     label.className = "degreeLabel";
+    label.dataset.deg = deg;
     label.textContent = Math.min(deg/4, 90 - deg/4) + "°";
 
     const rad = (deg - 90) * Math.PI / 180;
@@ -156,6 +159,9 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
+  labels.forEach(label => {
+    label.style.transform =`translate(-50%, -50%) rotate(${visualHeading}deg)`;
+  });
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
