@@ -139,7 +139,7 @@ function updateCompass(){
   const range = 45;       //円一周分にしたい角度
   let heading;
   if (zero_standard) {
-    heading = ((displayHeading + 540) % 360) - 180;;
+    heading = ((displayHeading + 540) % 360) - 180;
   }else{
     heading = ((displayHeading - 180 + 540) % 360) - 180;
   }
@@ -161,6 +161,7 @@ function updateCompass(){
         `theDiff = ${theDiff.toFixed(1)}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
         `visual = ${visualHeading.toFixed(1)}<br>`+
+        `limit = ${limitHeading.toFixed(1)}<br>`+
         `heading = ${heading.toFixed(1)}`;
   updateFan(visualHeading);
 }
