@@ -61,7 +61,7 @@ function createDeg_labels(){
     const label = document.createElement("div");
     label.className = "degreeLabel";
     label.dataset.deg = deg;
-    label.textContent = Math.min(deg/4, 90 - deg/4) + "°";
+    label.textContent = Math.min(deg/2, 90 - deg/2) + "°";
 
     const rad = (deg - 90) * Math.PI / 180;
     const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
@@ -82,17 +82,17 @@ function createTicks(){
     const size = 300;
     const cx = size/2;
     const cy = size/2;
-    if(i % 15 === 0){
+    if(i % 60 === 0){
       r1 = 148;
       r2 = 132;
     }
-    else if(i % 5 === 0){
+    else if(i % 20 === 0){
       r1 = 148;
-      r2 = 135;
+      r2 = 137;
     }
     else{
       r1 = 148;
-      r2 = 140;
+      r2 = 142;
     }
 
     line.setAttribute("x1", cx);
