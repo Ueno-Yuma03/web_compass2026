@@ -61,7 +61,7 @@ function createDeg_labels(){
     const label = document.createElement("div");
     label.className = "degreeLabel";
     label.dataset.deg = deg;
-    label.textContent = Math.min(deg/2, 90 - deg/2) + "°";
+    label.textContent = Math.min(deg/4, 90 - deg/4) + "°";
 
     const rad = (deg - 90) * Math.PI / 180;
     const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
