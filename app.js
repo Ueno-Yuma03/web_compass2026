@@ -7,6 +7,7 @@ const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
 let started = false;
+let sensorStarted = false;
 let zero_standard = true;
 let diff180 = 0;
 let diff0 = 0;
@@ -26,7 +27,7 @@ window.addEventListener("load", () => {
     initOrientation();
 });
 
-function initOrientation() {
+async function initOrientation() {
 
   //iOS判定（許可が必要な場合）
   if (
@@ -34,17 +35,18 @@ function initOrientation() {
     typeof DeviceOrientationEvent.requestPermission === "function"
   ) {
     //iOS → 許可を要求
-    DeviceOrientationEvent.requestPermission()
-      .then(permissionState => {
-
+    try {
+        const permissionState = await DeviceOrientationEvent.requestPermission();
         if (permissionState === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
+          return true;
         } else {
           ang_val.textContent = "センサーの許可が必要です";
+          return false;
         }
-      })
-      .catch(console.error);
-
+      } catch(err){
+        console.erroe(err);
+      }
   } else {
     // Android → そのまま開始
     window.addEventListener("deviceorientation", handleOrientation);
@@ -224,7 +226,16 @@ function setCountdown(message, nextState){
       countdown.innerHTML =`${message}${dots}<br>${remain}`;}}, 250);
 }
 
-document.querySelector('.ripple-btn').addEventListener('click', function (e) {
+document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
+  const ok = await initOrientation();
+
+  // まだセンサーを開始していなければ開始
+  if (!started) {
+    await initOrientation();
+  }
+  if (!ok) {
+    return;    // 許可されなかったので何もしない
+  }
   const button = e.currentTarget;
   started = true;
 
