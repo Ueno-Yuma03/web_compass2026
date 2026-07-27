@@ -7,7 +7,6 @@ const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
 let started = false;
-let sensorStarted = false;
 let zero_standard = true;
 let diff180 = 0;
 let diff0 = 0;
@@ -45,11 +44,12 @@ async function initOrientation() {
           return false;
         }
       } catch(err){
-        console.erroe(err);
+        console.error(err);
       }
   } else {
     // Android → そのまま開始
     window.addEventListener("deviceorientation", handleOrientation);
+    return true;
   }
 }
 
@@ -232,10 +232,11 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   // まだセンサーを開始していなければ開始
   if (!started) {
     await initOrientation();
+    if (!ok) {
+      return;
+    }
   }
-  if (!ok) {
-    return;    // 許可されなかったので何もしない
-  }
+  
   const button = e.currentTarget;
   started = true;
 
