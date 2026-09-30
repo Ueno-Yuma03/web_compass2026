@@ -10,15 +10,28 @@
 <div style="text-align: center;">
     <h1 style="text-align: center;">WEBコンパス</h1>
 </div>
-<div class="compass_wrapper">
+<div class="compass_wrapper" id="compass1">
   <div class="dial">
     <div class="circle"></div>
     <div class="circle1"></div>
     <svg class="fan-svg" viewBox="0 0 300 300">
-      <path id="fanPath"></path>
+      <path class="fanPath"></path>
     </svg>
     <svg class="ticks" viewBox="0 0 300 300"></svg>
-    <div id="deg_labels"></div>
+    <div class="deg_labels"></div>
+  </div>
+  <div class="arrow"></div>
+</div>
+
+<div class="compass_wrapper" id="compass2">
+  <div class="dial">
+    <div class="circle"></div>
+    <div class="circle1"></div>
+    <svg class="fan-svg" viewBox="0 0 300 300">
+      <path class="fanPath"></path>
+    </svg>
+    <svg class="ticks" viewBox="0 0 300 300"></svg>
+    <div class="deg_labels"></div>
   </div>
   <div class="arrow"></div>
 </div>

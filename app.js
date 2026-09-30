@@ -1,8 +1,8 @@
-const compass = document.querySelector(".dial");
+const dials = document.querySelectorAll(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
-const container = document.getElementById("deg_labels");
-const fanPath = document.getElementById("fanPath");
+const container = document.querySelectorAll(".deg_labels");
+const fanPaths = document.querySelectorAll(".fanPath");
 const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
@@ -54,58 +54,64 @@ async function initOrientation() {
 }
 
 function createDeg_labels(){
-  const dial = document.querySelector(".dial");
-  const container = document.getElementById("deg_labels");
-  container.innerHTML = "";
-  dial.appendChild(container);
-  const r = dial.offsetWidth * 0.72;
-  for (let deg = 0; deg < 360; deg += 60) {
-    const label = document.createElement("div");
-    label.className = "degreeLabel";
-    label.dataset.deg = deg;
-    label.textContent = Math.min(deg/4, 90 - deg/4) + "°";
+  document.querySelectorAll(".compass_wrapper").forEach(wrapper => {
+    const dial = wrapper.querySelector(".dial");
+    const container = wrapper.querySelector(".deg_labels");
+    console.log(container);
+    container.innerHTML = "";
+    dial.appendChild(container);
+    const r = dial.offsetWidth * 0.72;
+    console.log(dial.offsetWidth);
+    for (let deg = 0; deg < 360; deg += 30) {
+      const label = document.createElement("div");
+      label.className = "degreeLabel";
+      label.dataset.deg = deg;
+      label.textContent = Math.min(deg/2, 180 - deg/2) + "°";
 
-    const rad = (deg - 90) * Math.PI / 180;
-    const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
-    const y = 50 + (r * Math.sin(rad) / dial.offsetWidth * 100);
-    label.style.left = x + "%";
-    label.style.top = y + "%";
+      const rad = (deg - 90) * Math.PI / 180;
+      const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
+      const y = 50 + (r * Math.sin(rad) / dial.offsetWidth * 100);
+      label.style.left = x + "%";
+      label.style.top = y + "%";
 
-    container.appendChild(label);
-  }
+      container.appendChild(label);
+    }
+  });
 }
 
 //svgを用いた一目盛りのコード
 function createTicks(){
-  const svg = document.querySelector(".ticks");
-  for (let i=0; i<360; i+=4){
-    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-    //長さの設定
-    const size = 300;
-    const cx = size/2;
-    const cy = size/2;
-    if(i % 60 === 0){
-      r1 = 148;
-      r2 = 132;
-    }
-    else if(i % 20 === 0){
-      r1 = 148;
-      r2 = 137;
-    }
-    else{
-      r1 = 148;
-      r2 = 142;
-    }
+  document.querySelectorAll(".ticks").forEach(svg => {
+    svg.innerHTML = "";
+    for (let i=0; i<360; i+=2){
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      //長さの設定
+      const size = 300;
+      const cx = size/2;
+      const cy = size/2;
+      if(i % 30 === 0){
+        r1 = 148;
+        r2 = 132;
+      }
+      else if(i % 10 === 0){
+        r1 = 148;
+        r2 = 137;
+      }
+      else{
+        r1 = 148;
+        r2 = 142;
+      }
 
-    line.setAttribute("x1", cx);
-    line.setAttribute("y1", cy - r1);
-    line.setAttribute("x2", cx);
-    line.setAttribute("y2", cy - r2);
-    line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", 1.5);
-    line.setAttribute("transform", `rotate(${i} ${cx} ${cy})`);
-    svg.appendChild(line);
-  }
+      line.setAttribute("x1", cx);
+      line.setAttribute("y1", cy - r1);
+      line.setAttribute("x2", cx);
+      line.setAttribute("y2", cy - r2);
+      line.setAttribute("stroke", "black");
+      line.setAttribute("stroke-width", 1.5);
+      line.setAttribute("transform", `rotate(${i} ${cx} ${cy})`);
+      svg.appendChild(line);
+    }
+  });
 }
 
 function handleOrientation(event) {
@@ -141,7 +147,7 @@ function handleOrientation(event) {
 }
 
 function updateCompass(){
-  const range = 45;       //円一周分にしたい角度
+  const range = 90;       //円一周分にしたい角度
   let heading;
   if (zero_standard) {
     heading = ((displayHeading + 540) % 360) - 180;
@@ -150,7 +156,10 @@ function updateCompass(){
   }
   const limitHeading = Math.max(-range, Math.min(range, heading));
   let visualHeading = limitHeading * 180 / range;
-  compass.style.transform = `translate(-50%, -50%) rotate(${-visualHeading}deg)`;
+  const limitHeading2 = Math.max(-range/2, Math.min(range/2, heading));
+  const visualHeading2 = limitHeading2 * 180 / (range/2);
+  rotateCompass(document.getElementById("compass1"), visualHeading);
+  rotateCompass(document.getElementById("compass2"), visualHeading2);
 
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   const angle = Math.abs(theDiff).toFixed(1);
@@ -161,9 +170,7 @@ function updateCompass(){
   } else {
     ang_val.textContent = "ぴったりです。";
   }
-  labels.forEach(label => {
-    label.style.transform =`translate(-50%, -50%) rotate(${visualHeading}deg)`;
-  });
+
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
@@ -172,7 +179,15 @@ function updateCompass(){
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
         `timer = ${timer === null ? "null" : "running"}`;
-  updateFan(visualHeading);
+  updateFan(fanPath[0], visualHeading);
+  updateFan(fanPath[1], visualHeading2);
+}
+
+function rotateCompass(wrapper, angle) {
+    wrapper.querySelector(".dial").style.transform =`translate(-50%, -50%) rotate(${-angle}deg)`;
+    wrapper.querySelectorAll(".degreeLabel").forEach(label => {
+        label.style.transform =`translate(-50%, -50%) rotate(${angle}deg)`;
+    });
 }
 
 function checkMode(){
@@ -271,7 +286,7 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
 });
 
 //扇形の範囲を描画する関数
-function updateFan(angle){
+function updateFan(fanPath, angle){
   //classList.toggle() ← cssの２つのクラスを反転させる
   fanPath.classList.toggle("fan-normal", zero_standard);
   fanPath.classList.toggle("fan-reverse", !zero_standard);
