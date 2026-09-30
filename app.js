@@ -179,8 +179,8 @@ function updateCompass(){
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
         `timer = ${timer === null ? "null" : "running"}`;
-  updateFan(fanPath[0], visualHeading);
-  updateFan(fanPath[1], visualHeading2);
+  updateFan(fanPaths[0], visualHeading);
+  updateFan(fanPaths[1], visualHeading2);
 }
 
 function rotateCompass(wrapper, angle) {
