@@ -61,12 +61,17 @@ function createDeg_labels(){
     container.innerHTML = "";
     dial.appendChild(container);
     const r = dial.offsetWidth * 0.72;
-    console.log(dial.offsetWidth);
+    //compass1 → ±90°, compass2 → ±45°
+    const range = wrapper.id === "compass1" ? 90 : 45;
+
     for (let deg = 0; deg < 360; deg += 30) {
       const label = document.createElement("div");
       label.className = "degreeLabel";
       label.dataset.deg = deg;
-      label.textContent = Math.min(deg/2, 180 - deg/2) + "°";
+      // 実際の角度範囲へ変換
+      const visualAngle = deg <= 180 ? deg : 360 - deg;
+      const actualAngle = visualAngle * range / 180;
+      label.textContent = actualAngle + "°";
 
       const rad = (deg - 90) * Math.PI / 180;
       const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
