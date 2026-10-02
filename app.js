@@ -1,3 +1,10 @@
+//モード選択
+const modeSelect = document.getElementById("mode-select");
+const compassApp = document.getElementById("compass-app");
+const modeButtons =document.querySelectorAll(".mode-btn");
+const miniDials = document.querySelectorAll(".mini-dial");
+const miniFans = document.querySelectorAll(".mini-fanPath");
+//センサー関係
 const dials = document.querySelectorAll(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
@@ -6,6 +13,10 @@ const fanPaths = document.querySelectorAll(".fanPath");
 const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
 
+//現在選択している角度範囲
+let selRange = null;
+
+//センサー関係
 let started = false;
 let zero_standard = true;
 let diff180 = 0;
@@ -19,15 +30,75 @@ let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
 
-window.addEventListener("load", () => {
-    createTicks();
-    createDeg_labels();
-    labels = document.querySelectorAll(".degreeLabel");
-    initOrientation();
+
+/*モード選択*/
+document.querySelectorAll(".mode-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        selRange = Number(button.dataset.range);
+        document.getElementById("mode-select").style.display = "none";
+        document.getElementById("compass-app").style.display = "block";
+        requestAnimationFrame(() => {
+            createTicks();
+            createDeg_labels();
+        });
+    });
 });
+/*ミニコンパス2個制御*/
+function rotateMiniCompass(dial, angle) {
+    dial.style.transform = `translate(-50%, -50%) rotate(${-angle}deg)`;
+}
+function updateMiniFan(fanPath, angle) {
+    const center = 150;
+    const radius = 137;
+    const startAngle = -90;
+    const endAngle = startAngle + angle;
+    const startRad = startAngle * Math.PI / 180;
+    const endRad = endAngle * Math.PI / 180;
+    const x1 = center + radius * Math.cos(startRad);
+    const y1 = center + radius * Math.sin(startRad);
+    const x2 = center + radius * Math.cos(endRad);
+    const y2 = center + radius * Math.sin(endRad);
+    const largeArcFlag = Math.abs(angle) > 180 ? 1 : 0;
+    fanPath.setAttribute(
+        "d",
+        `M ${center} ${center}
+         L ${x1} ${y1}
+         A ${radius} ${radius} 0 ${largeArcFlag} ${angle >= 0 ? 1 : 0} ${x2} ${y2}
+         Z`
+    );
+}
+function animateMiniCompass() {
+    const dials = document.querySelectorAll(".mini-dial");
+    const fans = document.querySelectorAll(".mini-fanPath");
+    let angle = 0;
+    let direction = 1;
+    function animation() {
+        angle += 0.5 * direction;
+        // 90°まで回ったら反転
+        if (angle >= 90) {
+            angle = 90;
+            direction = -1;
+        }
+        // -90°まで回ったら反転
+        if (angle <= -90) {
+            angle = -90;
+            direction = 1;
+        }
+        dials.forEach((dial, index) => {
+          const range = index === 0 ? 90 : 45;
+          // 90°モード → ±90°
+          // 45°モード → ±45°
+          const miniAngle = angle * range / 90;
+          rotateMiniCompass(dial, miniAngle);
+          updateMiniFan(fans[index], miniAngle, range);
+        });
+          requestAnimationFrame(animation);
+    }
+    animation();
+}
+animateMiniCompass();
 
 async function initOrientation() {
-
   //iOS判定（許可が必要な場合）
   if (
     typeof DeviceOrientationEvent !== "undefined" &&
@@ -53,16 +124,76 @@ async function initOrientation() {
   }
 }
 
+function handleOrientation(event) {
+  //ボタンを押すまで待機
+  if(!started){
+    return;  
+  }
+  let heading;
+  
+  // iOS
+  if (event.webkitCompassHeading != null) {
+    heading = event.webkitCompassHeading;
+  } else if(event.absolute === true && event.alpha != null){
+    // Android
+    heading = (360 - event.alpha) % 360;
+  } else if(event.alpha != null){
+    heading = (360 - event.alpha) % 360;
+  } else {
+    return;
+  }
+  rawHeading = heading;
+  
+  //目標角度設定
+  const targetHeading = (heading - baseOffset + 360) % 360;
+  // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
+  let diff = targetHeading - displayHeading;
+  diff = ((diff + 540) % 360) - 180;
+  // スムージング
+    displayHeading += diff * 0.2;
+    displayHeading = (displayHeading + 360) % 360;
+  checkMode();        //基準反転のフラグ管理
+  updateCompass(displayHeading);    //すぐに描画用
+}
+
+function updateCompass(heading){
+  const limitHeading = Math.max(-selRange, Math.min(selRange, heading));
+  let visualHeading = limitHeading * 180 / selRange;
+  rotateCompass(document.getElementById("compass"), visualHeading);
+  updateFan(fanPaths[0], visualHeading);
+
+  const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
+  const angle = Math.abs(theDiff).toFixed(1);
+  if (theDiff > 0) {
+    ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
+  } else if (theDiff < 0) {
+    ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
+  } else {
+    ang_val.textContent = "ぴったりです。";
+  }
+  debug.innerHTML =
+        `zero = ${zero_standard}<br>` +
+        `display = ${displayHeading.toFixed(1)}<br>`+
+        `visual = ${visualHeading.toFixed(1)}<br>`+
+        `limit = ${limitHeading.toFixed(1)}<br>`+
+        `diff180 = ${diff180.toFixed(1)}<br>`+
+        `diff0 = ${diff0.toFixed(1)}<br>`+
+        `timer = ${timer === null ? "null" : "running"}`;
+}
+
+function rotateCompass(wrapper, angle) {
+    wrapper.querySelector(".dial").style.transform =`translate(-50%, -50%) rotate(${-angle}deg)`;
+    wrapper.querySelectorAll(".degreeLabel").forEach(label => {
+        label.style.transform =`translate(-50%, -50%) rotate(${angle}deg)`;
+    });
+}
+
 function createDeg_labels(){
   document.querySelectorAll(".compass_wrapper").forEach(wrapper => {
     const dial = wrapper.querySelector(".dial");
     const container = wrapper.querySelector(".deg_labels");
-    console.log(container);
     container.innerHTML = "";
-    dial.appendChild(container);
     const r = dial.offsetWidth * 0.72;
-    //compass1 → ±90°, compass2 → ±45°
-    const range = wrapper.id === "compass1" ? 90 : 45;
 
     for (let deg = 0; deg < 360; deg += 30) {
       const label = document.createElement("div");
@@ -70,8 +201,8 @@ function createDeg_labels(){
       label.dataset.deg = deg;
       // 実際の角度範囲へ変換
       const visualAngle = deg <= 180 ? deg : 360 - deg;
-      const actualAngle = visualAngle * range / 180;
-      label.textContent = actualAngle + "°";
+      const actualAngle = visualAngle * selRange / 180;
+      label.textContent = actualAngle.toFixed(1) + "°";
 
       const rad = (deg - 90) * Math.PI / 180;
       const x = 50 + (r * Math.cos(rad) / dial.offsetWidth * 100);
@@ -117,82 +248,6 @@ function createTicks(){
       svg.appendChild(line);
     }
   });
-}
-
-function handleOrientation(event) {
-  let heading;
-
-  // iOS
-  if (event.webkitCompassHeading != null) {
-    heading = event.webkitCompassHeading;
-  } else if(event.absolute === true && event.alpha != null){
-    // Android
-    heading = (360 - event.alpha) % 360;
-  } else if(event.alpha != null){
-    heading = (360 - event.alpha) % 360;
-  } else {
-    return;
-  }
-
-  rawHeading = heading;
-  //ボタンを押すまで待機
-  if(!started){
-    return;  
-  }
-  //目標角度設定
-  const targetHeading = (heading - baseOffset + 360) % 360;
-  // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
-  let diff = targetHeading - displayHeading;
-  diff = ((diff + 540) % 360) - 180;
-  // スムージング
-    displayHeading += diff * 0.2;
-    displayHeading = (displayHeading + 360) % 360;
-  checkMode();        //基準反転のフラグ管理
-  updateCompass();    //すぐに描画用
-}
-
-function updateCompass(){
-  const range = 90;       //円一周分にしたい角度
-  let heading;
-  if (zero_standard) {
-    heading = ((displayHeading + 540) % 360) - 180;
-  }else{
-    heading = ((displayHeading - 180 + 540) % 360) - 180;
-  }
-  const limitHeading = Math.max(-range, Math.min(range, heading));
-  let visualHeading = limitHeading * 180 / range;
-  const limitHeading2 = Math.max(-range/2, Math.min(range/2, heading));
-  const visualHeading2 = limitHeading2 * 180 / (range/2);
-  rotateCompass(document.getElementById("compass1"), visualHeading);
-  rotateCompass(document.getElementById("compass2"), visualHeading2);
-
-  const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
-  const angle = Math.abs(theDiff).toFixed(1);
-  if (theDiff > 0) {
-    ang_val.innerHTML = `右へ <span class="angle">${angle}°</span> ずれてます！`;
-  } else if (theDiff < 0) {
-    ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
-  } else {
-    ang_val.textContent = "ぴったりです。";
-  }
-
-  debug.innerHTML =
-        `zero = ${zero_standard}<br>` +
-        `display = ${displayHeading.toFixed(1)}<br>`+
-        `visual = ${visualHeading.toFixed(1)}<br>`+
-        `limit = ${limitHeading.toFixed(1)}<br>`+
-        `diff180 = ${diff180.toFixed(1)}<br>`+
-        `diff0 = ${diff0.toFixed(1)}<br>`+
-        `timer = ${timer === null ? "null" : "running"}`;
-  updateFan(fanPaths[0], visualHeading);
-  updateFan(fanPaths[1], visualHeading2);
-}
-
-function rotateCompass(wrapper, angle) {
-    wrapper.querySelector(".dial").style.transform =`translate(-50%, -50%) rotate(${-angle}deg)`;
-    wrapper.querySelectorAll(".degreeLabel").forEach(label => {
-        label.style.transform =`translate(-50%, -50%) rotate(${angle}deg)`;
-    });
 }
 
 function checkMode(){

@@ -4,26 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="design.css">
+  <script src="app.js" defer></script>
   <title>Web Compass</title>
 </head>
 <body>
-<div style="text-align: center;">
-    <h1 style="text-align: center;">WEBコンパス</h1>
+<!--モード選択画面-->
+<div id="mode-select">
+<h1 style="text-align: center;">WEBコンパス</h1>
+<p class="mode-descreption" style="text-align: center;">使用するコンパスのモードを選択してください</p>
+
+<div class="mode-options">
+    <!-- 90°モード -->
+    <div class="mode-option">
+        <div class="mini-compass">
+            <div class="mini-dial">
+                <svg class="mini-fan-svg" viewBox="0 0 300 300">
+                <path class="mini-fanPath"></path>
+                </svg>
+            </div>
+            <div class="mini-arrow"></div>
+        </div>
+        <button class="mode-btn" data-range="90">
+            <span class="mode-title">90°モード</span>
+            <span class="mode-subtitle">±90°を表示</span>
+        </button>
+    </div>
+    <!-- 45°モード -->
+    <div class="mode-option">
+        <div class="mini-compass">
+            <div class="mini-dial">
+                <svg class="mini-fan-svg" viewBox="0 0 300 300">
+                <path class="mini-fanPath"></path>
+                </svg>
+            </div>
+        <div class="mini-arrow"></div>
+        </div>
+        <button class="mode-btn" data-range="45">
+            <span class="mode-title">45°モード</span>
+            <span class="mode-subtitle">±45°を表示</span>
+        </button>
+    </div>
 </div>
-<div class="compass_wrapper" id="compass1">
-  <div class="dial">
-    <div class="circle"></div>
-    <div class="circle1"></div>
-    <svg class="fan-svg" viewBox="0 0 300 300">
-      <path class="fanPath"></path>
-    </svg>
-    <svg class="ticks" viewBox="0 0 300 300"></svg>
-    <div class="deg_labels"></div>
-  </div>
-  <div class="arrow"></div>
 </div>
 
-<div class="compass_wrapper" id="compass2">
+<!--コンパス本体-->
+<div id="compass-app">
+<h1 style="text-align: center;">WEBコンパス</h1>
+<div class="compass_wrapper" id="compass">
   <div class="dial">
     <div class="circle"></div>
     <div class="circle1"></div>
@@ -37,8 +64,8 @@
 </div>
 <p id="countdown"></p>
 <button class="ripple-btn">開始</button>
-<script src="app.js" defer></script>
 <p id="ang_val"></p>
 <p id="debug"></p>
+</div>
 </body>
 </html>
