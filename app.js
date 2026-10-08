@@ -328,10 +328,10 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     lastDiff = 0;
   }
   debug.innerHTML +=
-  `② キャリブレーション後<br>` +
+  /*`キャリブレーション後<br>` +
   `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
   `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-  `displayHeading = ${displayHeading.toFixed(1)}°`;
+  `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   updateCompass(displayHeading);
   button.textContent = "再キャリブレーション";
   
