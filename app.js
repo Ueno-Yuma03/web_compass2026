@@ -137,13 +137,19 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  debug.innerHTML = 
+  /*debug.innerHTML = 
   `センサー値<br>` +
   `heading = ${heading.toFixed(1)}°<br>` +
   `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
   `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-  `displayHeading = ${displayHeading.toFixed(1)}°`;
+  `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   rawHeading = heading;
+  debug.innerHTML =
+    `センサー取得<br>` +
+    `heading = ${heading.toFixed(1)}°<br>` +
+    `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
+    `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
+    `displayHeading = ${displayHeading.toFixed(1)}°`;
   //ボタンを押すまで待機
   if(!started){
     return;  
@@ -320,7 +326,7 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     displayHeading = 0;
     lastDiff = 0;
   } else {
-   baseOffset = rawHeading;
+    baseOffset = rawHeading;
     displayHeading = 0;
     lastDiff = 0;
   }
