@@ -143,6 +143,11 @@ function handleOrientation(event) {
     return;
   }
   rawHeading = heading;
+  debug.innerHTML =
+  `sensor heading = ${heading.toFixed(1)}<br>` +
+  `rawHeading = ${rawHeading.toFixed(1)}<br>` +
+  `displayHeading = ${displayHeading.toFixed(1)}<br>` +
+  `started = ${started}`;
   
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
@@ -157,10 +162,6 @@ function handleOrientation(event) {
 }
 
 function updateCompass(heading){
-  debug.innerHTML =
-  `引数heading = ${heading}<br>` +
-  `displayHeading = ${displayHeading}<br>` +
-  `selRange = ${selRange}`;
   // 0～360°を-180～180°に変換
   heading = ((heading + 180) % 360) - 180;
   const limitHeading = Math.max(-selRange, Math.min(selRange, heading));
@@ -308,23 +309,23 @@ function setCountdown(message, nextState){
 }
 
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
-  const ok = await initOrientation();
-
+  const button = e.currentTarget;
   // まだセンサーを開始していなければ開始
   if (!started) {
-    await initOrientation();
+    const ok = await initOrientation();
     if (!ok) {
       return;
     }
+    started = true;
+    baseOffset = rawHeading;
+    displayHeading = 0;
+    lastDiff = 0;
+  } else {
+   baseOffset = rawHeading;
+    displayHeading = 0;
+    lastDiff = 0;
   }
-  
-  const button = e.currentTarget;
-  started = true;
-
-  baseOffset = rawHeading;
-  displayHeading = 0;
-  lastDiff = 0;
-  updateCompass();
+  updateCompass(displayHeading);
   button.textContent = "再キャリブレーション";
   
   // 既存の波紋を削除
