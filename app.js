@@ -325,34 +325,23 @@ function setCountdown(message, nextState){
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
 
-  // まだセンサーを開始していなければ開始
-  if (!started) {
+  if (!orientationInitialized) {
     const ok = await initOrientation();
     if (!ok) {
       return;
     }
-    const tiltLimit = 5;
-    debug.innerHTML =
-    `判定時 Beta = ${Beta.toFixed(1)}°<br>` +
-    `判定時 Gamma = ${Gamma.toFixed(1)}°<br>` +
-    `判定結果 = ${
-        Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit
-        ? "傾きあり"
-        : "水平"
-    }`;
-    if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
+  }
+  const tiltLimit = 5;
+  if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
     tiltWarn.textContent = "スマートフォンを水平にしてください! ";
     return;
-    }
-    started = true;
-    baseOffset = rawHeading;
-    displayHeading = 0;
-    lastDiff = 0;
-  } else {
-    baseOffset = rawHeading;
-    displayHeading = 0;
-    lastDiff = 0;
   }
+  tiltWarn.textContent = "";
+  started = true;
+  baseOffset = rawHeading;
+  displayHeading = 0;
+  lastDiff = 0;
+  
   updateCompass(displayHeading);
   button.textContent = "再キャリブレーション";
   
