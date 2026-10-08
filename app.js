@@ -30,8 +30,8 @@ let baseOffset = 0;
 let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
-let currentBeta = 0;
-let currentGamma = 0;
+let Beta = 0;
+let Gamma = 0;
 
 
 /*モード選択*/
@@ -142,8 +142,11 @@ function handleOrientation(event) {
     return;
   }
   rawHeading = heading;
-  currentBeta = event.beta;
-  currentGamma = event.gamma;
+  Beta = event.beta;
+  Gamma = event.gamma;
+  debug.innerHTML =
+  `Beta = ${Beta.toFixed(1)}°<br>` +
+  `Gamma = ${Gamma.toFixed(1)}°`;
 
   //ボタンを押すまで待機
   if(!started){
@@ -319,7 +322,7 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     }
     const tiltLimit = 5;
 
-  if (Math.abs(currentBeta) > tiltLimit || Math.abs(currentGamma) > tiltLimit) {
+  if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
     tiltWarn.textContent = "スマートフォンを水平にしてください";
     return;
   }
