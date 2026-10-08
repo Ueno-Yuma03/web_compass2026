@@ -142,6 +142,7 @@ function handleOrientation(event) {
   } else {
     return;
   }
+  debug.innerHTML = 
   `センサー値<br>` +
   `heading = ${heading.toFixed(1)}°<br>` +
   `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
