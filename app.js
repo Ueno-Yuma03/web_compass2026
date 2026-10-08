@@ -128,6 +128,9 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
+  debug.textContent = `handleOrientationが実行されています<br>`+
+  `Beta = ${Beta.toFixed(1)}°<br>` +
+  `Gamma = ${Gamma.toFixed(1)}°`;
   let heading;
 
   // iOS
