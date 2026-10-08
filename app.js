@@ -157,6 +157,8 @@ function handleOrientation(event) {
 }
 
 function updateCompass(heading){
+  // 0～360°を-180～180°に変換
+  heading = ((heading + 180) % 360) - 180;
   const limitHeading = Math.max(-selRange, Math.min(selRange, heading));
   let visualHeading = limitHeading * 180 / selRange;
   rotateCompass(document.getElementById("compass"), visualHeading);
