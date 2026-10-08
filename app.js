@@ -5,6 +5,7 @@ const modeButtons =document.querySelectorAll(".mode-btn");
 const miniDials = document.querySelectorAll(".mini-dial");
 const miniFans = document.querySelectorAll(".mini-fanPath");
 //センサー関係
+const tiltWarn = document.getElementById("tilt-warning");
 const dials = document.querySelectorAll(".dial");
 const ang_val = document.getElementById("ang_val");
 const rp_btn = document.querySelector(".ripple-btn");
@@ -29,6 +30,8 @@ let baseOffset = 0;
 let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
+let currentBeta = 0;
+let currentGamma = 0;
 
 
 /*モード選択*/
@@ -125,12 +128,8 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
-  debug.innerHTML =
-  `センサー生値<br>` +
-  `alpha = ${event.alpha}<br>` +
-  `webkitCompassHeading = ${event.webkitCompassHeading}<br>` +
-  `absolute = ${event.absolute}`;
   let heading;
+
   // iOS
   if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
@@ -142,19 +141,10 @@ function handleOrientation(event) {
   } else {
     return;
   }
-  /*debug.innerHTML = 
-  `センサー値<br>` +
-  `heading = ${heading.toFixed(1)}°<br>` +
-  `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
-  `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-  `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   rawHeading = heading;
-  /*debug.innerHTML =
-    `センサー取得<br>` +
-    `heading = ${heading.toFixed(1)}°<br>` +
-    `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
-    `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-    `displayHeading = ${displayHeading.toFixed(1)}°`;*/
+  currentBeta = event.beta;
+  currentGamma = event.gamma;
+
   //ボタンを押すまで待機
   if(!started){
     return;  
@@ -320,12 +310,19 @@ function setCountdown(message, nextState){
 
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
+
   // まだセンサーを開始していなければ開始
   if (!started) {
     const ok = await initOrientation();
     if (!ok) {
       return;
     }
+    const tiltLimit = 5;
+
+  if (Math.abs(currentBeta) > tiltLimit || Math.abs(currentGamma) > tiltLimit) {
+    tiltWarn.textContent = "スマートフォンを水平にしてください";
+    return;
+  }
     started = true;
     baseOffset = rawHeading;
     displayHeading = 0;
@@ -335,11 +332,6 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     displayHeading = 0;
     lastDiff = 0;
   }
-  debug.innerHTML +=
-  /*`キャリブレーション後<br>` +
-  `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
-  `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-  `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   updateCompass(displayHeading);
   button.textContent = "再キャリブレーション";
   
