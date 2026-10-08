@@ -142,13 +142,14 @@ function handleOrientation(event) {
   } else {
     return;
   }
+  `センサー値<br>` +
+  `heading = ${heading.toFixed(1)}°<br>` +
+  `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
+  `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
+  `displayHeading = ${displayHeading.toFixed(1)}°`;
+
   rawHeading = heading;
-  debug.innerHTML =
-  `sensor heading = ${heading.toFixed(1)}<br>` +
-  `rawHeading = ${rawHeading.toFixed(1)}<br>` +
-  `displayHeading = ${displayHeading.toFixed(1)}<br>` +
-  `started = ${started}`;
-  
+
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -325,6 +326,11 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     displayHeading = 0;
     lastDiff = 0;
   }
+  debug.innerHTML +=
+  `② キャリブレーション後<br>` +
+  `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
+  `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
+  `displayHeading = ${displayHeading.toFixed(1)}°`;
   updateCompass(displayHeading);
   button.textContent = "再キャリブレーション";
   
