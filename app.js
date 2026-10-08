@@ -125,6 +125,11 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
+  debug.innerHTML =
+  `センサー生値<br>` +
+  `alpha = ${event.alpha}<br>` +
+  `webkitCompassHeading = ${event.webkitCompassHeading}<br>` +
+  `absolute = ${event.absolute}`;
   let heading;
   // iOS
   if (event.webkitCompassHeading != null) {
@@ -144,12 +149,12 @@ function handleOrientation(event) {
   `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
   `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   rawHeading = heading;
-  debug.innerHTML =
+  /*debug.innerHTML =
     `センサー取得<br>` +
     `heading = ${heading.toFixed(1)}°<br>` +
     `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
     `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
-    `displayHeading = ${displayHeading.toFixed(1)}°`;
+    `displayHeading = ${displayHeading.toFixed(1)}°`;*/
   //ボタンを押すまで待機
   if(!started){
     return;  
