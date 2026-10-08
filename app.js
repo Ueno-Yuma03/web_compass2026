@@ -18,6 +18,7 @@ const countdown = document.getElementById("countdown");
 let selRange = null;
 
 //センサー関係
+let orientationInitialized = false;
 let started = false;
 let zero_standard = true;
 let diff180 = 0;
@@ -36,10 +37,15 @@ let Gamma = null;
 
 /*モード選択*/
 document.querySelectorAll(".mode-btn").forEach(button => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
         selRange = Number(button.dataset.range);
         document.getElementById("mode-select").style.display = "none";
         document.getElementById("compass-app").style.display = "block";
+        // センサー取得開始
+        const ok = await initOrientation();
+        if (!ok) {
+          return;
+        }
         requestAnimationFrame(() => {
             createTicks();
             createDeg_labels();
@@ -102,6 +108,10 @@ function animateMiniCompass() {
 animateMiniCompass();
 
 async function initOrientation() {
+  // すでにセンサーを登録済みなら何もしない
+  if (orientationInitialized) {
+    return true;
+  }
   //iOS判定（許可が必要な場合）
   if (
     typeof DeviceOrientationEvent !== "undefined" &&
@@ -124,13 +134,9 @@ async function initOrientation() {
   } else {
     // Android → そのまま開始
     window.addEventListener("deviceorientation", handleOrientation);
-  }
-  // センサー値が届くまで待つ
-  await new Promise(resolve => {
-    const checkSensor = setInterval(() => {
-    if (Beta !== null && Gamma !== null) {clearInterval(checkSensor);resolve();}}, 50);
-  });
+    orientationInitialized = true;
     return true;
+  }
 }
 
 function handleOrientation(event) {
@@ -267,8 +273,8 @@ function createTicks(){
 
 function checkMode(){
   // 180°付近に5秒以上いたら基準の反転
-  /*const*/ diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
-  /*const*/ diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
+  diff180 = Math.abs(((displayHeading - 180 + 540) % 360) - 180);
+  diff0 = Math.abs(((displayHeading + 540) % 360) - 180);
   if (zero_standard) {
     if (diff180 <= 10) {     // 170~190°を180°付近とする
       if(timer === null){
