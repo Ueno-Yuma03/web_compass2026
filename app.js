@@ -176,7 +176,7 @@ function updateCompass(heading){
     ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
-  }
+  }/*
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
@@ -184,7 +184,7 @@ function updateCompass(heading){
         `limit = ${limitHeading.toFixed(1)}<br>`+
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
-        `timer = ${timer === null ? "null" : "running"}`;
+        `timer = ${timer === null ? "null" : "running"}`;*/
 }
 
 function rotateCompass(wrapper, angle) {
