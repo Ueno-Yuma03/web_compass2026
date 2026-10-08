@@ -30,8 +30,8 @@ let baseOffset = 0;
 let rawHeading = 0;
 let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
-let Beta = 0;
-let Gamma = 0;
+let Beta = null;
+let Gamma = null;
 
 
 /*モード選択*/
@@ -119,12 +119,18 @@ async function initOrientation() {
         }
       } catch(err){
         console.error(err);
+        return false;
       }
   } else {
     // Android → そのまま開始
     window.addEventListener("deviceorientation", handleOrientation);
-    return true;
   }
+  // センサー値が届くまで待つ
+  await new Promise(resolve => {
+    const checkSensor = setInterval(() => {
+    if (Beta !== null && Gamma !== null) {clearInterval(checkSensor);resolve();}}, 50);
+  });
+    return true;
 }
 
 function handleOrientation(event) {
@@ -144,7 +150,7 @@ function handleOrientation(event) {
   rawHeading = heading;
   Beta = event.beta;
   Gamma = event.gamma;
-  debug.textContent = `handleOrientationが実行されています<br>`+
+  debug.innerHTML = `handleOrientationが実行されています<br>`+
   `Beta = ${Beta.toFixed(1)}°<br>` +
   `Gamma = ${Gamma.toFixed(1)}°`;
   //ボタンを押すまで待機
