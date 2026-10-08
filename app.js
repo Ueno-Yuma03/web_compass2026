@@ -326,11 +326,18 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
       return;
     }
     const tiltLimit = 5;
-
-  if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
-    tiltWarn.textContent = "スマートフォンを水平にしてください";
+    debug.innerHTML =
+    `判定時 Beta = ${Beta.toFixed(1)}°<br>` +
+    `判定時 Gamma = ${Gamma.toFixed(1)}°<br>` +
+    `判定結果 = ${
+        Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit
+        ? "傾きあり"
+        : "水平"
+    }`;
+    if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
+    tiltWarn.textContent = "スマートフォンを水平にしてください! ";
     return;
-  }
+    }
     started = true;
     baseOffset = rawHeading;
     displayHeading = 0;
