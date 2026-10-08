@@ -125,12 +125,7 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
-  //ボタンを押すまで待機
-  if(!started){
-    return;  
-  }
   let heading;
-  
   // iOS
   if (event.webkitCompassHeading != null) {
     heading = event.webkitCompassHeading;
@@ -148,9 +143,11 @@ function handleOrientation(event) {
   `rawHeading = ${rawHeading.toFixed(1)}°<br>` +
   `baseOffset = ${baseOffset.toFixed(1)}°<br>` +
   `displayHeading = ${displayHeading.toFixed(1)}°`;
-
   rawHeading = heading;
-
+  //ボタンを押すまで待機
+  if(!started){
+    return;  
+  }
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
