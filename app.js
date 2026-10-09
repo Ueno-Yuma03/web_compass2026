@@ -155,10 +155,12 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
   Beta = event.beta;
-  Gamma = event.gamma;/*
-  debug.innerHTML = `handleOrientationが実行されています<br>`+
-  `Beta = ${Beta.toFixed(1)}°<br>` +
-  `Gamma = ${Gamma.toFixed(1)}°`;*/
+  Gamma = event.gamma;
+  debug.innerHTML = 
+    `handleOrientationが実行されています<br>`+
+    `Beta = ${Beta.toFixed(1)}°<br>` +
+    `Gamma = ${Gamma.toFixed(1)}°`;
+
   //ボタンを押すまで待機
   if(!started){
     return;  
@@ -169,20 +171,25 @@ function handleOrientation(event) {
   let diff = targetHeading - displayHeading;
   diff = ((diff + 540) % 360) - 180;
   // スムージング
-    displayHeading += diff * 0.2;
-    displayHeading = (displayHeading + 360) % 360;
+  displayHeading += diff * 0.2;
+  displayHeading = (displayHeading + 360) % 360;
   checkMode();        //基準反転のフラグ管理
-  updateCompass(displayHeading);    //すぐに描画用
+  updateCompass();    //すぐに描画用
 }
 
-function updateCompass(heading){
+function updateCompass(){
   // 0～360°を-180～180°に変換
-  heading = ((heading + 180) % 360) - 180;
+  let heading;
+  if (zero_standard) {
+    heading = ((displayHeading + 540) % 360) - 180;
+  }else{
+    heading = ((displayHeading - 180 + 540) % 360) - 180;
+  }
   const limitHeading = Math.max(-selRange, Math.min(selRange, heading));
   let visualHeading = limitHeading * 180 / selRange;
   rotateCompass(document.getElementById("compass"), visualHeading);
   updateFan(fanPaths[0], visualHeading);
-
+  
   const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
   const angle = Math.abs(theDiff).toFixed(1);
   if (theDiff > 0) {
