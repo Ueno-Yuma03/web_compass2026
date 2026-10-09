@@ -155,11 +155,11 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
   Beta = event.beta;
-  Gamma = event.gamma;
+  Gamma = event.gamma;/*
   debug.innerHTML = 
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
-    `Gamma = ${Gamma.toFixed(1)}°`;
+    `Gamma = ${Gamma.toFixed(1)}°`;*/
 
   //ボタンを押すまで待機
   if(!started){
@@ -197,7 +197,7 @@ function updateCompass(){
     ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
-  }
+  }/*
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
@@ -205,7 +205,7 @@ function updateCompass(){
         `limit = ${limitHeading.toFixed(1)}<br>`+
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
-        `timer = ${timer === null ? "null" : "running"}`;
+        `timer = ${timer === null ? "null" : "running"}`;*/
 }
 
 function rotateCompass(wrapper, angle) {
@@ -413,3 +413,74 @@ function updateFan(fanPath, angle){
   `;
   fanPath.setAttribute("d", d);
 }
+
+let magSensor = null;
+
+const magStatus = document.getElementById("mag-status");
+const magX = document.getElementById("mag-x");
+const magY = document.getElementById("mag-y");
+const magZ = document.getElementById("mag-z");
+const magTotal = document.getElementById("mag-total");
+
+document.getElementById("mag-start").addEventListener("click", () => {
+  // API対応確認
+  if (!("Magnetometer" in window)) {
+    magStatus.textContent =
+      "このブラウザはMagnetometer APIに対応していません";
+    console.error("Magnetometer API非対応");
+    return;
+  }
+
+  // 二重起動を防止
+  if (magSensor) {
+    magStatus.textContent = "測定中です";
+    return;
+  }
+
+  try {
+    magSensor = new Magnetometer({ frequency: 10 });
+
+    magSensor.addEventListener("reading", () => {
+      const x = magSensor.x;
+      const y = magSensor.y;
+      const z = magSensor.z;
+
+      // X・Y・Z成分（μT）
+      magX.textContent = x.toFixed(2);
+      magY.textContent = y.toFixed(2);
+      magZ.textContent = z.toFixed(2);
+
+      // 磁場の大きさ
+      const total = Math.sqrt(x * x + y * y + z * z);
+      magTotal.textContent = total.toFixed(2);
+
+      console.log({ x, y, z, total });
+      magStatus.textContent = "測定中";
+    });
+
+    magSensor.addEventListener("error", (event) => {
+      console.error("磁気センサーエラー:", event.error);
+      magStatus.textContent =
+        "エラー：" + (event.error?.name || "不明");
+      magSensor = null;
+    });
+
+    magSensor.start();
+    magStatus.textContent = "センサーを起動しています…";
+
+  } catch (error) {
+    console.error("センサー開始失敗:", error);
+    magStatus.textContent =
+      "開始失敗：" + error.name;
+    magSensor = null;
+  }
+});
+
+document.getElementById("mag-stop").addEventListener("click", () => {
+  if (magSensor) {
+    magSensor.stop();
+    magSensor = null;
+  }
+
+  magStatus.textContent = "停止中";
+});
