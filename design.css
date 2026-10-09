@@ -346,7 +346,7 @@
         margin-top: 5px;
     }
 
-/*タップすると針を追加するボタン*/
+/*タップすると波紋を追加するボタン*/
     .ripple-btn {
         margin:50px auto 0;
         display: block;
@@ -375,6 +375,30 @@
         transform: scale(2);
         opacity: 0;
         }
+    }
+
+    /*モードを途中から切り替えるボタン*/
+    .range-switch{
+        display: none;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    .range-switch button.active {
+        background-color: #777779;
+        color: white;
+    }
+    .range-btn{
+        padding: 0.3em 1em;
+        text-decoration: none;
+        background: #FFF;
+        color: #777779;
+        border: solid 2px #777779;
+        border-radius: 2px;
+    }
+    .range-btn:hover{
+        background: #777779;
+        color: #FFF;
     }
 
 /*ボタンを押した後に扇形の範囲を表示する*/

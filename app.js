@@ -178,7 +178,6 @@ function handleOrientation(event) {
 }
 
 function updateCompass(){
-  // 0～360°を-180～180°に変換
   let heading;
   if (zero_standard) {
     heading = ((displayHeading + 540) % 360) - 180;
@@ -349,9 +348,10 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   displayHeading = 0;
   lastDiff = 0;
 
-  updateCompass(displayHeading);
+  updateCompass();
   button.textContent = "再キャリブレーション";
-  
+  document.querySelector(".range-switch").style.display = "flex";
+
   // 既存の波紋を削除
   const oldRipple = button.querySelector('.ripple');
   if (oldRipple) {
@@ -374,6 +374,18 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
 
   button.appendChild(ripple);
   setTimeout(() => ripple.remove(), 400);
+});
+
+/*モードの途中変更*/
+document.querySelectorAll(".range-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    selRange = Number(button.dataset.range);
+    createDeg_labels();
+    updateCompass();
+    document.querySelectorAll(".range-btn").forEach(btn => {
+      btn.classList.toggle("active", btn === button);
+    });
+  });
 });
 
 //扇形の範囲を描画する関数
