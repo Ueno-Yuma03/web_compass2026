@@ -13,10 +13,8 @@ const container = document.querySelectorAll(".deg_labels");
 const fanPaths = document.querySelectorAll(".fanPath");
 const debug = document.getElementById("debug");
 const countdown = document.getElementById("countdown");
-
 //現在選択している角度範囲
 let selRange = null;
-
 //センサー関係
 let orientationInitialized = false;
 let started = false;
@@ -33,7 +31,6 @@ let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
 let Beta = null;
 let Gamma = null;
-
 
 /*モード選択*/
 document.querySelectorAll(".mode-btn").forEach(button => {
@@ -94,7 +91,7 @@ function animateMiniCompass() {
             direction = 1;
         }
         dials.forEach((dial, index) => {
-          const range = index === 0 ? 90 : 45;
+          const range = index === 0 ? 45 : 90;
           // 90°モード → ±90°
           // 45°モード → ±45°
           const miniAngle = angle * range / 90;
@@ -413,9 +410,8 @@ function updateFan(fanPath, angle){
   `;
   fanPath.setAttribute("d", d);
 }
-
+/*
 let magSensor = null;
-
 const magStatus = document.getElementById("mag-status");
 const magX = document.getElementById("mag-x");
 const magY = document.getElementById("mag-y");
@@ -425,62 +421,50 @@ const magTotal = document.getElementById("mag-total");
 document.getElementById("mag-start").addEventListener("click", () => {
   // API対応確認
   if (!("Magnetometer" in window)) {
-    magStatus.textContent =
-      "このブラウザはMagnetometer APIに対応していません";
+    magStatus.textContent = "このブラウザはMagnetometer APIに対応していません";
     console.error("Magnetometer API非対応");
     return;
   }
-
   // 二重起動を防止
   if (magSensor) {
     magStatus.textContent = "測定中です";
     return;
   }
-
   try {
     magSensor = new Magnetometer({ frequency: 10 });
-
     magSensor.addEventListener("reading", () => {
       const x = magSensor.x;
       const y = magSensor.y;
       const z = magSensor.z;
-
       // X・Y・Z成分（μT）
       magX.textContent = x.toFixed(2);
       magY.textContent = y.toFixed(2);
       magZ.textContent = z.toFixed(2);
-
       // 磁場の大きさ
       const total = Math.sqrt(x * x + y * y + z * z);
       magTotal.textContent = total.toFixed(2);
-
       console.log({ x, y, z, total });
       magStatus.textContent = "測定中";
     });
 
     magSensor.addEventListener("error", (event) => {
       console.error("磁気センサーエラー:", event.error);
-      magStatus.textContent =
-        "エラー：" + (event.error?.name || "不明");
+      magStatus.textContent = "エラー：" + (event.error?.name || "不明");
       magSensor = null;
     });
-
     magSensor.start();
     magStatus.textContent = "センサーを起動しています…";
-
   } catch (error) {
     console.error("センサー開始失敗:", error);
-    magStatus.textContent =
-      "開始失敗：" + error.name;
+    magStatus.textContent = "開始失敗：" + error.name;
     magSensor = null;
   }
 });
 
 document.getElementById("mag-stop").addEventListener("click", () => {
   if (magSensor) {
-    magSensor.stop();
+    magSensor.stop(); 
     magSensor = null;
   }
-
   magStatus.textContent = "停止中";
-});
+});*/
