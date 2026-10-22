@@ -112,33 +112,25 @@ async function initOrientation() {
   if (orientationInitialized) {
     return true;
   }
-  //iOS判定（許可が必要な場合）
-  if (
-    typeof DeviceOrientationEvent !== "undefined" &&
-    typeof DeviceOrientationEvent.requestPermission === "function"
-  ) {
-    //iOS → 許可を要求
+  // センサーの許可が必要な環境では許可を要求
+  if (typeof DeviceOrientationEvent !== "undefined" &&
+      typeof DeviceOrientationEvent.requestPermission === "function") {
     try {
-        const permissionState = await DeviceOrientationEvent.requestPermission();
-        if (permissionState === "granted") {
-          window.addEventListener("deviceorientation", handleOrientation);
-          orientationInitialized = true;
-          return true;
-        } else {
-          ang_val.textContent = "センサーの許可が必要です";
-          return false;
-        }
-      } catch(err){
-        console.error(err);
+      const permissionState = await DeviceOrientationEvent.requestPermission(true);
+      if (permissionState !== "granted") {
+        ang_val.textContent = "センサーの許可が必要です";
         return false;
       }
-  } else {
-    //ang_val.textContent = "Android側のelseに入りました";
-    // Android → そのまま開始
-    window.addEventListener("deviceorientationabsolute", handleOrientation);
-    orientationInitialized = true;
-    return true;
+    } catch(err){
+      console.error(err);
+      ang_val.textContent = "センサーの許可を取得できませんでした";
+      return false;
+    }
   }
+  // 絶対方位イベントを登録
+  window.addEventListener("deviceorientationabsolute",handleOrientation);
+  orientationInitialized = true;
+  return true;
 }
 
 function handleOrientation(event) {
