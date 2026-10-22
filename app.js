@@ -429,3 +429,30 @@ function updateFan(fanPath, angle){
   `;
   fanPath.setAttribute("d", d);
 }
+
+const result = document.getElementById("mag-test");
+result.textContent =
+  `HTTPSなどの安全な環境: ${window.isSecureContext}\n` +
+  `Magnetometer API: ${"Magnetometer" in window ? "対応あり" : "対応なし"}\n` +
+  `DeviceOrientation API: ${"DeviceOrientationEvent" in window ? "対応あり" : "対応なし"}`;
+if ("Magnetometer" in window) {
+  try {
+    const sensor = new Magnetometer({ frequency: 10 });
+    sensor.addEventListener("reading", () => {
+      result.textContent =
+        `磁場 X: ${sensor.x.toFixed(2)} µT\n` +
+        `磁場 Y: ${sensor.y.toFixed(2)} µT\n` +
+        `磁場 Z: ${sensor.z.toFixed(2)} µT`;
+    });
+    sensor.addEventListener("error", (event) => {
+      result.textContent +=
+        `\nセンサーエラー: ${event.error.name}` +
+        `\n${event.error.message}`;
+    });
+    sensor.start();
+    result.textContent += "\nセンサーの起動を要求しました。";
+  } catch (error) {
+    result.textContent +=
+      `\n起動失敗: ${error.name}\n${error.message}`;
+  }
+}
