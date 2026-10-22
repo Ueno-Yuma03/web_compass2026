@@ -134,6 +134,10 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
+  ang_val.textContent =
+  `イベント: ${event.type}\n` +
+  `absolute: ${event.absolute}\n` +
+  `alpha: ${event.alpha}`;
   let heading;
 
   // iOS
