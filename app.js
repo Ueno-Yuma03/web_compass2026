@@ -467,7 +467,6 @@ function handleMotion(event) {
   // 判定に必要な時間がたまるまでは待つ
   if (motionSamples.length < 30) {
     caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-    return;
   }
   const result = detectFigureEight(motionSamples);
   if (result) {
@@ -480,6 +479,7 @@ function handleMotion(event) {
 
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
+  debug.textContent = `samples: ${samples.length}`;
   if (samples.length < 60) return false;
   // 十分な時間、動きが記録されていること
   const duration = samples[samples.length - 1].time - samples[0].time;
