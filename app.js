@@ -154,12 +154,11 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
   Beta = event.beta;
-  Gamma = event.gamma;
+  Gamma = event.gamma;/*
   debug.innerHTML = 
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
-    `Gamma = ${Gamma.toFixed(1)}°<br>` +
-    `absolute = ${event.absolute}`;
+    `Gamma = ${Gamma.toFixed(1)}°`;*/
 
   //ボタンを押すまで待機
   if(!started){
@@ -457,3 +456,23 @@ if ("Magnetometer" in window) {
       `\n起動失敗: ${error.name}\n${error.message}`;
   }
 }
+
+const output = document.getElementById("orientation-test");
+function showOrientation(event, eventName) {
+  output.textContent =
+    `イベント: ${eventName}\n` +
+    `absolute: ${event.absolute}\n` +
+    `alpha: ${event.alpha}\n` +
+    `beta: ${event.beta}\n` +
+    `gamma: ${event.gamma}\n` +
+    `webkitCompassHeading: ${event.webkitCompassHeading}\n` +
+    `deviceorientationabsolute対応: ${
+      "ondeviceorientationabsolute" in window
+    }`;
+}
+window.addEventListener("deviceorientation", event => {
+  showOrientation(event, "deviceorientation");
+});
+window.addEventListener("deviceorientationabsolute", event => {
+  showOrientation(event, "deviceorientationabsolute");
+});
