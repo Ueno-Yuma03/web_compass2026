@@ -121,6 +121,7 @@ async function initOrientation() {
         const permissionState = await DeviceOrientationEvent.requestPermission();
         if (permissionState === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
+          orientationInitialized = true;
           return true;
         } else {
           ang_val.textContent = "センサーの許可が必要です";
@@ -159,10 +160,7 @@ function handleOrientation(event) {
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
     `Gamma = ${Gamma.toFixed(1)}°`;*/
-  debug.innerHTML =
-    `イベント: ${event.type}<br>` +
-    `alpha: ${event.alpha}<br>` +
-    `webkitCompassHeading: ${event.webkitCompassHeading}`;
+    
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !figureEightCalibrationDone) {
     return;
