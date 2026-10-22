@@ -16,6 +16,8 @@ const countdown = document.getElementById("countdown");
 //現在選択している角度範囲
 let selRange = null;
 //センサー関係
+let figureEightPromptShown = false;         //キャリブレーション(8の字運動)を行ったかどうか
+let figureEightCalibrationDone = false;     //初回のキャリブレーションを終えたかどうか
 let orientationInitialized = false;
 let started = false;
 let zero_standard = true;
@@ -162,6 +164,10 @@ function handleOrientation(event) {
   if(!started){
     return;  
   }
+  // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
+  if (!started || !figureEightCalibrationDone) {
+    return;
+  }
   //目標角度設定
   const targetHeading = (heading - baseOffset + 360) % 360;
   // 差を正しく計算（-180〜180にする）(javascriptは"%"の仕様で負の値を認識できない)
@@ -172,6 +178,9 @@ function handleOrientation(event) {
   displayHeading = (displayHeading + 360) % 360;
   checkMode();        //基準反転のフラグ管理
   updateCompass();    //すぐに描画用
+  // 初回キャリブレーション完了
+  figureEightCalibrationDone = true;
+  document.getElementById("calibration-message").textContent ="キャリブレーション済みです。";
 }
 
 function updateCompass(){
@@ -328,6 +337,16 @@ function setCountdown(message, nextState){
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
 
+  //初回クリック：8の字キャリブレーションを案内
+  if (!figureEightCalibrationDone && !figureEightPromptShown) {
+    figureEightPromptShown = true;
+    document.getElementById("calibration-message").textContent =
+      "スマートフォンを8の字を描くようにゆっくり動かしてください。" +
+      "終わったら、もう一度ボタンを押して測定を開始します。";
+    button.textContent = "測定を開始する";
+    return;
+  }
+
   if (!orientationInitialized) {
     const ok = await initOrientation();
     if (!ok) {
@@ -410,61 +429,3 @@ function updateFan(fanPath, angle){
   `;
   fanPath.setAttribute("d", d);
 }
-/*
-let magSensor = null;
-const magStatus = document.getElementById("mag-status");
-const magX = document.getElementById("mag-x");
-const magY = document.getElementById("mag-y");
-const magZ = document.getElementById("mag-z");
-const magTotal = document.getElementById("mag-total");
-
-document.getElementById("mag-start").addEventListener("click", () => {
-  // API対応確認
-  if (!("Magnetometer" in window)) {
-    magStatus.textContent = "このブラウザはMagnetometer APIに対応していません";
-    console.error("Magnetometer API非対応");
-    return;
-  }
-  // 二重起動を防止
-  if (magSensor) {
-    magStatus.textContent = "測定中です";
-    return;
-  }
-  try {
-    magSensor = new Magnetometer({ frequency: 10 });
-    magSensor.addEventListener("reading", () => {
-      const x = magSensor.x;
-      const y = magSensor.y;
-      const z = magSensor.z;
-      // X・Y・Z成分（μT）
-      magX.textContent = x.toFixed(2);
-      magY.textContent = y.toFixed(2);
-      magZ.textContent = z.toFixed(2);
-      // 磁場の大きさ
-      const total = Math.sqrt(x * x + y * y + z * z);
-      magTotal.textContent = total.toFixed(2);
-      console.log({ x, y, z, total });
-      magStatus.textContent = "測定中";
-    });
-
-    magSensor.addEventListener("error", (event) => {
-      console.error("磁気センサーエラー:", event.error);
-      magStatus.textContent = "エラー：" + (event.error?.name || "不明");
-      magSensor = null;
-    });
-    magSensor.start();
-    magStatus.textContent = "センサーを起動しています…";
-  } catch (error) {
-    console.error("センサー開始失敗:", error);
-    magStatus.textContent = "開始失敗：" + error.name;
-    magSensor = null;
-  }
-});
-
-document.getElementById("mag-stop").addEventListener("click", () => {
-  if (magSensor) {
-    magSensor.stop(); 
-    magSensor = null;
-  }
-  magStatus.textContent = "停止中";
-});*/
