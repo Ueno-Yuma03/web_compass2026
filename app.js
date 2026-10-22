@@ -16,8 +16,6 @@ const countdown = document.getElementById("countdown");
 //現在選択している角度範囲
 let selRange = null;
 //センサー関係
-let figureEightPromptShown = false;         //キャリブレーション(8の字運動)を行ったかどうか
-let figureEightCalibrationDone = false;     //初回のキャリブレーションを終えたかどうか
 let orientationInitialized = false;
 let started = false;
 let zero_standard = true;
@@ -33,6 +31,15 @@ let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
 let Beta = null;
 let Gamma = null;
+/*キャリブレーション用*/
+let fig8_PrmptShown = false;  //キャリブレーション(8の字運動)を行ったかどうか
+let fig8_CaliDone = false;     //初回のキャリブレーションを終えたかどうか
+let fig8_Active = false;
+const caliModal = document.getElementById("calibration-modal");
+const caliStatus = document.getElementById("calibration-status");
+// 動き検出の仮設定
+const motionThreshold = 1.2; // m/s²
+let motionHitCount = 0;
 
 /*モード選択*/
 document.querySelectorAll(".mode-btn").forEach(button => {
@@ -166,7 +173,7 @@ function handleOrientation(event) {
   `計算後: ${heading.toFixed(1)}°`;
 
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
-  if (!started || !figureEightCalibrationDone) {
+  if (!started || !fig8_CaliDone) {
     return;
   }
   //目標角度設定
@@ -336,22 +343,15 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   const button = e.currentTarget;
 
   // 初回クリック：8の字キャリブレーションを案内
-  if (!figureEightCalibrationDone && !figureEightPromptShown) {
-    figureEightPromptShown = true;
-    const message = document.getElementById("calibration-message");
-    message.textContent =
-    "スマートフォンを8の字を描くようにゆっくり動かしてください。" +
-    "終わったら、もう一度ボタンを押して測定を開始します。";
-    message.style.display = "block";
-    button.textContent = "測定を開始する";
+  if (!fig8_CaliDone && !fig8_PrmptShown) {
+    fig8_PrmptShown = true;
+    startFig8_Det();
     return;
   }
 
   if (!orientationInitialized) {
     const ok = await initOrientation();
-    if (!ok) {
-      return;
-    }
+    if (!ok) { return; }
   }
   const tiltLimit = 5;
   if (Math.abs(Beta) > tiltLimit || Math.abs(Gamma) > tiltLimit) {
@@ -359,12 +359,10 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     return;
   }
   tiltWarn.textContent = "";
-  // 案内メッセージを非表示
-  document.getElementById("calibration-message").style.display = "none";
   baseOffset = rawHeading;
   displayHeading = 0;
   lastDiff = 0;
-  figureEightCalibrationDone = true;
+  fig8_CaliDone = true;
   started = true;
 
   updateCompass();
@@ -442,10 +440,64 @@ function formatOrientation(event, name) {
   );
 }
 window.addEventListener("deviceorientation", event => {
-  normalOutput.textContent =
-    formatOrientation(event, "通常イベント");
+  normalOutput.textContent = formatOrientation(event, "通常イベント");
 });
 window.addEventListener("deviceorientationabsolute", event => {
-  absoluteOutput.textContent =
-    formatOrientation(event, "絶対方位イベント");
+  absoluteOutput.textContent = formatOrientation(event, "絶対方位イベント");
 });
+
+// 8の字運動検出用のデータ記録
+const motionSamples = [];
+function handleMotion(event) {
+  if (!fig8_Active) return;
+  const acc = event.acceleration;
+  const gcc = event.accelerationIncludingGravity;
+  motionSamples.push({
+    time: performance.now(),
+    acx: acc?.x ?? null,   acy: acc?.y ?? null,   acz: acc?.z ?? null,
+    gcx: gcc?.x ?? null,   gcy: gcc?.y ?? null,   gcz: gcc?.z ?? null
+  });
+
+  // 重力の影響を除いた加速度が取得できるか確認
+  if (acc?.x == null || acc?.y == null || acc?.z == null){
+    caliStatus.textContent = "加速度を取得できません。端末のセンサーを確認してください。";
+    return;
+  }
+  // 加速度ベクトルの大きさを計算
+  const magnitude = Math.sqrt(
+    acc.x * acc.x   +  acc.y * acc.y   +   acc.z * acc.z
+  );
+  // 一定以上の加速度があれば動きの候補とする
+  if (magnitude > motionThreshold) {
+    motionHitCount++;
+  } else {
+    motionHitCount = Math.max(0, motionHitCount - 1);
+  }
+  // 何回か続けて動きが観測されたら、動作中と表示
+  if (motionHitCount >= 5) {
+    caliStatus.textContent = "動きを検出しました。8の字運動を判定中です。";
+  }
+}
+
+// 加速度センサーのイベントを登録
+window.addEventListener("devicemotion", handleMotion);
+// 記録をリセット
+function clearMotionSamples() {
+  motionSamples.length = 0;
+}
+//8の字運動(キャリブレーション)の開始
+function startFig8_Det() {
+  if (fig8_Active || fig8_CaliDone) return;
+  fig8_Active = true;
+  caliModal.hidden = false;
+  caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
+  clearMotionSamples();
+  motionHitCount = 0;
+}
+//8の字運動(キャリブレーション)の終了
+function finishFig8_Det() {
+  if (!fig8_Active) return;
+  fig8_Active = false;
+  fig8_CaliDone = true;
+  caliModal.hidden = true;
+}
