@@ -16,8 +16,6 @@ const countdown = document.getElementById("countdown");
 //現在選択している角度範囲
 let selRange = null;
 //センサー関係
-let figureEightPromptShown = false;         //キャリブレーション(8の字運動)を行ったかどうか
-let figureEightCalibrationDone = false;     //初回のキャリブレーションを終えたかどうか
 let orientationInitialized = false;
 let started = false;
 let zero_standard = true;
@@ -178,9 +176,6 @@ function handleOrientation(event) {
   displayHeading = (displayHeading + 360) % 360;
   checkMode();        //基準反転のフラグ管理
   updateCompass();    //すぐに描画用
-  // 初回キャリブレーション完了
-  figureEightCalibrationDone = true;
-  document.getElementById("calibration-message").textContent ="キャリブレーション済みです。";
 }
 
 function updateCompass(){
@@ -337,16 +332,6 @@ function setCountdown(message, nextState){
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
 
-  //初回クリック：8の字キャリブレーションを案内
-  if (!figureEightCalibrationDone && !figureEightPromptShown) {
-    figureEightPromptShown = true;
-    document.getElementById("calibration-message").textContent =
-      "スマートフォンを8の字を描くようにゆっくり動かしてください。" +
-      "終わったら、もう一度ボタンを押して測定を開始します。";
-    button.textContent = "測定を開始する";
-    return;
-  }
-
   if (!orientationInitialized) {
     const ok = await initOrientation();
     if (!ok) {
@@ -373,21 +358,18 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   if (oldRipple) {
     oldRipple.remove();
   }
-
   //波紋要素を作成
   const ripple = document.createElement('span');
   ripple.classList.add('ripple');
-
   const rect = button.getBoundingClientRect();
   const size = Math.max(rect.width, rect.height);
   ripple.style.width = ripple.style.height = size + 'px';
-
   //クリック(タップ)位置
   const x = e.clientX - rect.left - size / 2;
   const y = e.clientY - rect.top - size / 2;
   ripple.style.left = x + 'px';
   ripple.style.top = y + 'px';
-
+  
   button.appendChild(ripple);
   setTimeout(() => ripple.remove(), 400);
 });
@@ -430,49 +412,22 @@ function updateFan(fanPath, angle){
   fanPath.setAttribute("d", d);
 }
 
-const result = document.getElementById("mag-test");
-result.textContent =
-  `HTTPSなどの安全な環境: ${window.isSecureContext}\n` +
-  `Magnetometer API: ${"Magnetometer" in window ? "対応あり" : "対応なし"}\n` +
-  `DeviceOrientation API: ${"DeviceOrientationEvent" in window ? "対応あり" : "対応なし"}`;
-if ("Magnetometer" in window) {
-  try {
-    const sensor = new Magnetometer({ frequency: 10 });
-    sensor.addEventListener("reading", () => {
-      result.textContent =
-        `磁場 X: ${sensor.x.toFixed(2)} µT\n` +
-        `磁場 Y: ${sensor.y.toFixed(2)} µT\n` +
-        `磁場 Z: ${sensor.z.toFixed(2)} µT`;
-    });
-    sensor.addEventListener("error", (event) => {
-      result.textContent +=
-        `\nセンサーエラー: ${event.error.name}` +
-        `\n${event.error.message}`;
-    });
-    sensor.start();
-    result.textContent += "\nセンサーの起動を要求しました。";
-  } catch (error) {
-    result.textContent +=
-      `\n起動失敗: ${error.name}\n${error.message}`;
-  }
-}
-
-const output = document.getElementById("orientation-test");
-function showOrientation(event, eventName) {
-  output.textContent =
-    `イベント: ${eventName}\n` +
+const normalOutput = document.getElementById("normal-test");
+const absoluteOutput = document.getElementById("absolute-test");
+function formatOrientation(event, name) {
+  return (
+    `${name}\n` +
     `absolute: ${event.absolute}\n` +
-    `alpha: ${event.alpha}\n` +
-    `beta: ${event.beta}\n` +
-    `gamma: ${event.gamma}\n` +
-    `webkitCompassHeading: ${event.webkitCompassHeading}\n` +
-    `deviceorientationabsolute対応: ${
-      "ondeviceorientationabsolute" in window
-    }`;
+    `alpha: ${event.alpha?.toFixed(1)}\n` +
+    `beta: ${event.beta?.toFixed(1)}\n` +
+    `gamma: ${event.gamma?.toFixed(1)}\n`
+  );
 }
 window.addEventListener("deviceorientation", event => {
-  showOrientation(event, "deviceorientation");
+  normalOutput.textContent =
+    formatOrientation(event, "通常イベント");
 });
 window.addEventListener("deviceorientationabsolute", event => {
-  showOrientation(event, "deviceorientationabsolute");
+  absoluteOutput.textContent =
+    formatOrientation(event, "絶対方位イベント");
 });
