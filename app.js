@@ -154,11 +154,12 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
   Beta = event.beta;
-  Gamma = event.gamma;/*
+  Gamma = event.gamma;
   debug.innerHTML = 
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
-    `Gamma = ${Gamma.toFixed(1)}°`;*/
+    `Gamma = ${Gamma.toFixed(1)}°<br>` +
+    `absolute = ${event.absolute}`;
 
   //ボタンを押すまで待機
   if(!started){
