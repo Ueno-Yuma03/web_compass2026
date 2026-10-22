@@ -132,10 +132,10 @@ async function initOrientation() {
         return false;
       }
   } else {
+    ang_val.textContent = "Android側のelseに入りました";
     // Android → そのまま開始
     window.addEventListener("deviceorientationabsolute", handleOrientation);
     orientationInitialized = true;
-    ang_val.textContent = "absoluteイベントを登録しました";
     return true;
   }
 }
