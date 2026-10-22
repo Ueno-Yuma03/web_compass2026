@@ -140,22 +140,15 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
-  ang_val.textContent =
-    `イベント: ${event.type}\n` +
-    `alpha: ${event.alpha}\n` +
-    `beta: ${event.beta}\n` +
-    `gamma: ${event.gamma}`;
   let heading;
 
-  // iOS：コンパスの方位を優先
-  if (typeof event.webkitCompassHeading === "number" && event.webkitCompassHeading >= 0){
+  // iOS
+  if (typeof event.webkitCompassHeading === "number" && Number.isFinite(event.webkitCompassHeading)){
     heading = event.webkitCompassHeading;
-  }
-  // Android：絶対方位イベントを使用
-  else if (event.type === "deviceorientationabsolute" && event.alpha !== null && Number.isFinite(event.alpha)){
+  } else if(typeof event.alpha === "number" && Number.isFinite(event.alpha)){
+    // Android
     heading = (360 - event.alpha) % 360;
-  }
-  else {
+  } else {
     return;
   }
   rawHeading = heading;
@@ -165,6 +158,12 @@ function handleOrientation(event) {
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
     `Gamma = ${Gamma.toFixed(1)}°`;*/
+  ang_val.textContent =
+    `イベント: ${event.type}\n` +
+    `方位: ${heading.toFixed(1)}°\n` +
+    `beta: ${Beta.toFixed(1)}\n` +
+    `gamma: ${Gamma.toFixed(1)}`;
+
 
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !figureEightCalibrationDone) {
