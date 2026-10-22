@@ -135,6 +135,7 @@ async function initOrientation() {
     // Android → そのまま開始
     window.addEventListener("deviceorientationabsolute", handleOrientation);
     orientationInitialized = true;
+    ang_val.textContent = "absoluteイベントを登録しました";
     return true;
   }
 }
@@ -154,7 +155,7 @@ function handleOrientation(event) {
   rawHeading = heading;
   Beta = event.beta;
   Gamma = event.gamma;
-  
+
   ang_val.textContent =
     `イベント: ${event.type}\n` +
     `方位: ${heading.toFixed(1)}°\n` +
