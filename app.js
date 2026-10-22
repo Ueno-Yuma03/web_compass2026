@@ -140,6 +140,11 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
+  ang_val.textContent =
+    `イベント: ${event.type}\n` +
+    `alpha: ${event.alpha}\n` +
+    `beta: ${event.beta}\n` +
+    `gamma: ${event.gamma}`;
   let heading;
 
   // iOS：コンパスの方位を優先
