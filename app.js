@@ -480,21 +480,21 @@ function handleMotion(event) {
 
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
-  if (samples.length < 30) return false;
+  if (samples.length < 60) return false;
+  // 十分な時間、動きが記録されていること
+  const duration = samples[samples.length - 1].time - samples[0].time;
+  if (duration < 2500) return false;
   const xs = samples.map(s => s.x);
   const ys = samples.map(s => s.y);
-  // X・Y方向それぞれの加速度の変化幅
   const rangeX = Math.max(...xs) - Math.min(...xs);
   const rangeY = Math.max(...ys) - Math.min(...ys);
-  // 小さなノイズを無視し、方向の変化を数える
-  function countDirectionChanges(values, deadZone = 0.8) {
+  function countDirectionChanges(values, deadZone = 2.0) {
     let previousSign = 0;
     let changes = 0;
     for (const value of values) {
       let sign = 0;
       if (value > deadZone) sign = 1;
       if (value < -deadZone) sign = -1;
-      // ノイズの範囲では直前の方向を維持
       if (sign === 0) continue;
       if (previousSign !== 0 && sign !== previousSign) {
         changes++;
@@ -505,12 +505,20 @@ function detectFigureEight(samples) {
   }
   const changesX = countDirectionChanges(xs);
   const changesY = countDirectionChanges(ys);
-  // 両方向に十分な動きがあり、複数回方向が切り替わったか
+
+  debug.innerHTML =
+  `rangeX: ${rangeX.toFixed(2)}<br>` +
+  `rangeY: ${rangeY.toFixed(2)}<br>` +
+  `changesX: ${changesX}<br>` +
+  `changesY: ${changesY}<br>` +
+  `samples: ${samples.length}`;
+
+  // すべての条件を満たしたときだけ候補とする
   return (
-    rangeX > 2.0 &&
-    rangeY > 2.0 &&
-    changesX >= 3 &&
-    changesY >= 2
+    rangeX > 4.0 &&
+    rangeY > 4.0 &&
+    changesX >= 5 &&
+    changesY >= 5
   );
 }
 
