@@ -16,6 +16,8 @@ const countdown = document.getElementById("countdown");
 //現在選択している角度範囲
 let selRange = null;
 //センサー関係
+let figureEightPromptShown = false;         //キャリブレーション(8の字運動)を行ったかどうか
+let figureEightCalibrationDone = false;     //初回のキャリブレーションを終えたかどうか
 let orientationInitialized = false;
 let started = false;
 let zero_standard = true;
@@ -130,7 +132,7 @@ async function initOrientation() {
       }
   } else {
     // Android → そのまま開始
-    window.addEventListener("deviceorientation", handleOrientation);
+    window.addEventListener("deviceorientationabsolute", handleOrientation);
     orientationInitialized = true;
     return true;
   }
@@ -139,15 +141,15 @@ async function initOrientation() {
 function handleOrientation(event) {
   let heading;
 
-  // iOS
-  if (event.webkitCompassHeading != null) {
+  // iOS：コンパスの方位を優先
+  if (typeof event.webkitCompassHeading === "number" && event.webkitCompassHeading >= 0){
     heading = event.webkitCompassHeading;
-  } else if(event.absolute === true && event.alpha != null){
-    // Android
+  }
+  // Android：絶対方位イベントを使用
+  else if (event.type === "deviceorientationabsolute" && event.alpha !== null){
     heading = (360 - event.alpha) % 360;
-  } else if(event.alpha != null){
-    heading = (360 - event.alpha) % 360;
-  } else {
+  }
+  else {
     return;
   }
   rawHeading = heading;
@@ -332,6 +334,18 @@ function setCountdown(message, nextState){
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
 
+  // 初回クリック：8の字キャリブレーションを案内
+  if (!figureEightCalibrationDone && !figureEightPromptShown) {
+    figureEightPromptShown = true;
+    const message = document.getElementById("calibration-message");
+    message.textContent =
+    "スマートフォンを8の字を描くようにゆっくり動かしてください。" +
+    "終わったら、もう一度ボタンを押して測定を開始します。";
+    message.style.display = "block";
+    button.textContent = "測定を開始する";
+    return;
+  }
+
   if (!orientationInitialized) {
     const ok = await initOrientation();
     if (!ok) {
@@ -344,10 +358,13 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
     return;
   }
   tiltWarn.textContent = "";
-  started = true;
+  // 案内メッセージを非表示
+  document.getElementById("calibration-message").style.display = "none";
   baseOffset = rawHeading;
   displayHeading = 0;
   lastDiff = 0;
+  figureEightCalibrationDone = true;
+  started = true;
 
   updateCompass();
   button.textContent = "再キャリブレーション";
@@ -369,7 +386,7 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   const y = e.clientY - rect.top - size / 2;
   ripple.style.left = x + 'px';
   ripple.style.top = y + 'px';
-  
+
   button.appendChild(ripple);
   setTimeout(() => ripple.remove(), 400);
 });
