@@ -159,11 +159,10 @@ function handleOrientation(event) {
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
     `Gamma = ${Gamma.toFixed(1)}°`;*/
-
-  //ボタンを押すまで待機
-  if(!started){
-    return;  
-  }
+  debug.innerHTML =
+    `イベント: ${event.type}<br>` +
+    `alpha: ${event.alpha}<br>` +
+    `webkitCompassHeading: ${event.webkitCompassHeading}`;
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !figureEightCalibrationDone) {
     return;
