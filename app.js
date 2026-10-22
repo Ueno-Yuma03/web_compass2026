@@ -153,17 +153,17 @@ function handleOrientation(event) {
   }
   rawHeading = heading;
   Beta = event.beta;
-  Gamma = event.gamma;/*
-  debug.innerHTML = 
-    `handleOrientationが実行されています<br>`+
-    `Beta = ${Beta.toFixed(1)}°<br>` +
-    `Gamma = ${Gamma.toFixed(1)}°`;*/
+  Gamma = event.gamma;
+  
   ang_val.textContent =
     `イベント: ${event.type}\n` +
     `方位: ${heading.toFixed(1)}°\n` +
     `beta: ${Beta.toFixed(1)}\n` +
     `gamma: ${Gamma.toFixed(1)}`;
-
+  debug.textContent =
+  `イベント: ${event.type}\n` +
+  `alpha: ${event.alpha}\n` +
+  `計算後: ${heading.toFixed(1)}°`;
 
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !figureEightCalibrationDone) {
