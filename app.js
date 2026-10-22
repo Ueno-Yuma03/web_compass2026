@@ -446,32 +446,72 @@ const motionSamples = [];
 function handleMotion(event) {
   if (!fig8_Active) return;
   const acc = event.acceleration;
-  const gcc = event.accelerationIncludingGravity;
-  motionSamples.push({
-    time: performance.now(),
-    acx: acc?.x ?? null,   acy: acc?.y ?? null,   acz: acc?.z ?? null,
-    gcx: gcc?.x ?? null,   gcy: gcc?.y ?? null,   gcz: gcc?.z ?? null
-  });
-
-  // 重力の影響を除いた加速度が取得できるか確認
-  if (acc?.x == null || acc?.y == null || acc?.z == null){
+  // 加速度のXYZ成分が取得できない場合
+  if (acc?.x == null || acc?.y == null || acc?.z == null) {
     caliStatus.textContent = "加速度を取得できません。端末のセンサーを確認してください。";
     return;
   }
-  // 加速度ベクトルの大きさを計算
-  const magnitude = Math.sqrt(
-    acc.x * acc.x   +  acc.y * acc.y   +   acc.z * acc.z
+  const now = performance.now();
+  // 加速度データを記録
+  motionSamples.push({
+    time: now,
+    x: acc.x,
+    y: acc.y,
+    z: acc.z
+  });
+  // 直近4秒分のデータだけを残す
+  const windowMs = 4000;
+  while (motionSamples.length > 0 && now - motionSamples[0].time > windowMs){
+    motionSamples.shift();
+  }
+  // 判定に必要な時間がたまるまでは待つ
+  if (motionSamples.length < 30) {
+    caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
+    return;
+  }
+  const result = detectFigureEight(motionSamples);
+  if (result) {
+    caliStatus.textContent = "8の字らしい動きを検出しました。キャリブレーション完了!";
+    finishFig8_Det();
+  } else{
+    caliStatus.textContent = "8の字を描くように、左右を大きくゆっくり動かしてください。";
+  }
+}
+
+// 加速度の変化から8の字らしい動きを推定する
+function detectFigureEight(samples) {
+  if (samples.length < 30) return false;
+  const xs = samples.map(s => s.x);
+  const ys = samples.map(s => s.y);
+  // X・Y方向それぞれの加速度の変化幅
+  const rangeX = Math.max(...xs) - Math.min(...xs);
+  const rangeY = Math.max(...ys) - Math.min(...ys);
+  // 小さなノイズを無視し、方向の変化を数える
+  function countDirectionChanges(values, deadZone = 0.8) {
+    let previousSign = 0;
+    let changes = 0;
+    for (const value of values) {
+      let sign = 0;
+      if (value > deadZone) sign = 1;
+      if (value < -deadZone) sign = -1;
+      // ノイズの範囲では直前の方向を維持
+      if (sign === 0) continue;
+      if (previousSign !== 0 && sign !== previousSign) {
+        changes++;
+      }
+      previousSign = sign;
+    }
+    return changes;
+  }
+  const changesX = countDirectionChanges(xs);
+  const changesY = countDirectionChanges(ys);
+  // 両方向に十分な動きがあり、複数回方向が切り替わったか
+  return (
+    rangeX > 2.0 &&
+    rangeY > 2.0 &&
+    changesX >= 3 &&
+    changesY >= 2
   );
-  // 一定以上の加速度があれば動きの候補とする
-  if (magnitude > motionThreshold) {
-    motionHitCount++;
-  } else {
-    motionHitCount = Math.max(0, motionHitCount - 1);
-  }
-  // 何回か続けて動きが観測されたら、動作中と表示
-  if (motionHitCount >= 5) {
-    caliStatus.textContent = "動きを検出しました。8の字運動を判定中です。";
-  }
 }
 
 // 加速度センサーのイベントを登録
