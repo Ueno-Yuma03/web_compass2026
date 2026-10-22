@@ -147,7 +147,7 @@ function handleOrientation(event) {
     heading = event.webkitCompassHeading;
   }
   // Android：絶対方位イベントを使用
-  else if (event.type === "deviceorientationabsolute" && event.alpha !== null){
+  else if (event.type === "deviceorientationabsolute" && event.alpha !== null && Number.isFinite(event.alpha)){
     heading = (360 - event.alpha) % 360;
   }
   else {
@@ -160,7 +160,7 @@ function handleOrientation(event) {
     `handleOrientationが実行されています<br>`+
     `Beta = ${Beta.toFixed(1)}°<br>` +
     `Gamma = ${Gamma.toFixed(1)}°`;*/
-    
+
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !figureEightCalibrationDone) {
     return;
