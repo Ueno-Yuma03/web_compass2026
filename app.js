@@ -114,7 +114,6 @@ function animateMiniCompass() {
 animateMiniCompass();
 
 async function initOrientation() {
-  ang_val.textContent =`requestPermission: ${typeof DeviceOrientationEvent.requestPermission}`;
   // すでにセンサーを登録済みなら何もしない
   if (orientationInitialized) {
     return true;
@@ -141,10 +140,6 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
-  ang_val.textContent =
-  `イベント: ${event.type}\n` +
-  `absolute: ${event.absolute}\n` +
-  `alpha: ${event.alpha}`;
   let heading;
 
   // iOS
@@ -159,7 +154,7 @@ function handleOrientation(event) {
   rawHeading = heading;
   Beta = event.beta;
   Gamma = event.gamma;
-
+/*
   ang_val.textContent =
     `イベント: ${event.type}\n` +
     `方位: ${heading.toFixed(1)}°<br>` +
@@ -170,7 +165,7 @@ function handleOrientation(event) {
   debug.textContent =
   `イベント: ${event.type}\n` +
   `alpha: ${event.alpha}\n` +
-  `計算後: ${heading.toFixed(1)}°`;
+  `計算後: ${heading.toFixed(1)}°`;*/
 
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !fig8_CaliDone) {
