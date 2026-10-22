@@ -107,6 +107,7 @@ function animateMiniCompass() {
 animateMiniCompass();
 
 async function initOrientation() {
+  ang_val.textContent =`requestPermission: ${typeof DeviceOrientationEvent.requestPermission}`;
   // すでにセンサーを登録済みなら何もしない
   if (orientationInitialized) {
     return true;
@@ -132,7 +133,7 @@ async function initOrientation() {
         return false;
       }
   } else {
-    ang_val.textContent = "Android側のelseに入りました";
+    //ang_val.textContent = "Android側のelseに入りました";
     // Android → そのまま開始
     window.addEventListener("deviceorientationabsolute", handleOrientation);
     orientationInitialized = true;
