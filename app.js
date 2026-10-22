@@ -141,11 +141,6 @@ async function initOrientation() {
 }
 
 function handleOrientation(event) {
-  ang_val.textContent =
-  `イベント: ${event.type}\n` +
-  `absolute: ${event.absolute}\n` +
-  `alpha: ${event.alpha}`;
-  
   let heading;
 
   // iOS
@@ -163,8 +158,10 @@ function handleOrientation(event) {
 
   ang_val.textContent =
     `イベント: ${event.type}\n` +
-    `方位: ${heading.toFixed(1)}°\n` +
-    `beta: ${Beta.toFixed(1)}\n` +
+    `方位: ${heading.toFixed(1)}°<br>` +
+    `absolute: ${event.absolute}<br>` +
+    `alpha: ${event.alpha}<br>` +
+    `beta: ${Beta.toFixed(1)}<br>` +
     `gamma: ${Gamma.toFixed(1)}`;
   debug.textContent =
   `イベント: ${event.type}\n` +
