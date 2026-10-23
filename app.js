@@ -487,13 +487,17 @@ function startFig8_Det() {
       "このブラウザーではMagnetometer APIを利用できません。";
     return;
   } try{
-    magnetometerSensor = new Magnetometer({frequency: 30});
+    magnetometerSensor = new Magnetometer({frequency: 10});
     magnetometerSensor.addEventListener("reading", handleMagnetometer);
     magnetometerSensor.addEventListener("error", event => {
+      fig8_Active = false;
       const err = event.error;
       caliStatus.textContent =
         `磁気センサーエラー: ${err?.name ?? "不明"}\n` +
         `詳細: ${err?.message ?? "詳細なし"}`;
+      if (magnetometerSensor){
+        magnetometerSensor.stop();
+      }
     });
     magnetometerSamples.length = 0;
     debug.textContent = "";
