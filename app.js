@@ -37,9 +37,7 @@ let fig8_CaliDone = false;     //初回のキャリブレーションを終え�
 let fig8_Active = false;
 const caliModal = document.getElementById("calibration-modal");
 const caliStatus = document.getElementById("calibration-status");
-// 動き検出の仮設定
-const motionThreshold = 1.2; // m/s²
-let motionHitCount = 0;
+
 
 /*モード選択*/
 document.querySelectorAll(".mode-btn").forEach(button => {
@@ -441,106 +439,80 @@ window.addEventListener("deviceorientationabsolute", event => {
   absoluteOutput.textContent = formatOrientation(event, "絶対方位イベント");
 });
 
-// 8の字運動検出用のデータ記録
-const motionSamples = [];
-function handleMotion(event) {
-  if (!fig8_Active) return;
-  const acc = event.acceleration;
-  // 加速度のXYZ成分が取得できない場合
-  if (acc?.x == null || acc?.y == null || acc?.z == null) {
-    caliStatus.textContent = "加速度を取得できません。端末のセンサーを確認してください。";
-    return;
-  }
+
+// 動き検出(磁気センサー)
+let magnetometerSensor = null;
+const magnetometerSamples = [];
+
+// 磁気センサーの測定値を記録する
+function handleMagnetometer() {
+  if (!fig8_Active || !magnetometerSensor) return;
   const now = performance.now();
-  // 加速度データを記録
-  motionSamples.push({
+  magnetometerSamples.push({
     time: now,
-    x: acc.x,
-    y: acc.y,
-    z: acc.z
+    x: magnetometerSensor.x,
+    y: magnetometerSensor.y,
+    z: magnetometerSensor.z
   });
-  // 直近4秒分のデータだけを残す
-  const windowMs = 4000;
-  while (motionSamples.length > 0 && now - motionSamples[0].time > windowMs){
-    motionSamples.shift();
+  // 直近4秒分のデータを保持
+  while (magnetometerSamples.length > 0  &&  now - magnetometerSamples[0].time > 4000){
+    magnetometerSamples.shift();
   }
-  // 判定に必要な時間がたまるまでは待つ
-  if (motionSamples.length < 30) {
-    caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-  }
-  const result = detectFigureEight(motionSamples);
-  if (result) {
-    caliStatus.textContent = "8の字らしい動きを検出しました。キャリブレーション完了!";
-    finishFig8_Det();
-  } else{
-    caliStatus.textContent = "8の字を描くように、左右を大きくゆっくり動かしてください。";
+  // まずは測定値を確認する
+  const samples = magnetometerSamples;
+  if (samples.length > 0) {
+    const xs = samples.map(s => s.x);
+    const ys = samples.map(s => s.y);
+    const zs = samples.map(s => s.z);
+    const rangeX = Math.max(...xs) - Math.min(...xs);
+    const rangeY = Math.max(...ys) - Math.min(...ys);
+    const rangeZ = Math.max(...zs) - Math.min(...zs);
+    debug.textContent =
+      `X: ${magnetometerSensor.x.toFixed(2)} µT\n` +
+      `Y: ${magnetometerSensor.y.toFixed(2)} µT\n` +
+      `Z: ${magnetometerSensor.z.toFixed(2)} µT\n` +
+      `rangeX: ${rangeX.toFixed(2)} µT\n` +
+      `rangeY: ${rangeY.toFixed(2)} µT\n` +
+      `rangeZ: ${rangeZ.toFixed(2)} µT\n` +
+      `samples: ${samples.length}`;
   }
 }
 
-// 加速度の変化から8の字らしい動きを推定する
-function detectFigureEight(samples) {
-  debug.textContent = `samples: ${samples.length}`;
-  if (samples.length < 60) return false;
-  // 十分な時間、動きが記録されていること
-  const duration = samples[samples.length - 1].time - samples[0].time;
-  if (duration < 2500) return false;
-  const xs = samples.map(s => s.x);
-  const ys = samples.map(s => s.y);
-  const rangeX = Math.max(...xs) - Math.min(...xs);
-  const rangeY = Math.max(...ys) - Math.min(...ys);
-  function countDirectionChanges(values, deadZone = 2.0) {
-    let previousSign = 0;
-    let changes = 0;
-    for (const value of values) {
-      let sign = 0;
-      if (value > deadZone) sign = 1;
-      if (value < -deadZone) sign = -1;
-      if (sign === 0) continue;
-      if (previousSign !== 0 && sign !== previousSign) {
-        changes++;
-      }
-      previousSign = sign;
-    }
-    return changes;
-  }
-  const changesX = countDirectionChanges(xs);
-  const changesY = countDirectionChanges(ys);
-
-  debug.innerHTML =
-  `rangeX: ${rangeX.toFixed(2)}<br>` +
-  `rangeY: ${rangeY.toFixed(2)}<br>` +
-  `changesX: ${changesX}<br>` +
-  `changesY: ${changesY}<br>` +
-  `samples: ${samples.length}`;
-
-  // すべての条件を満たしたときだけ候補とする
-  return (
-    rangeX > 4.0 &&
-    rangeY > 4.0 &&
-    changesX >= 5 &&
-    changesY >= 5
-  );
-}
-
-// 加速度センサーのイベントを登録
-window.addEventListener("devicemotion", handleMotion);
-// 記録をリセット
-function clearMotionSamples() {
-  motionSamples.length = 0;
-}
-//8の字運動(キャリブレーション)の開始
+// 8の字キャリブレーション開始
 function startFig8_Det() {
   if (fig8_Active || fig8_CaliDone) return;
-  fig8_Active = true;
-  caliModal.hidden = false;
-  caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-  clearMotionSamples();
-  motionHitCount = 0;
+  if (!("Magnetometer" in window)) {
+    caliModal.hidden = false;
+    caliStatus.textContent =
+      "このブラウザーではMagnetometer APIを利用できません。";
+    return;
+  } try{
+    magnetometerSensor = new Magnetometer({frequency: 30});
+    magnetometerSensor.addEventListener("reading", handleMagnetometer);
+    magnetometerSensor.addEventListener("error", event => {
+      caliStatus.textContent = `磁気センサーエラー: ${event.error?.name ?? "不明"}`;
+    });
+    magnetometerSamples.length = 0;
+    debug.textContent = "";
+    fig8_Active = true;
+    caliModal.hidden = false;
+    caliStatus.textContent = "スマートフォンを静止・左右往復・8の字の順に動かして測定してください。";
+    // ボタン操作中にセンサーを開始する
+    magnetometerSensor.start();
+  } catch(error){
+    fig8_Active = false;
+    caliModal.hidden = false;
+    caliStatus.textContent = `磁気センサーを開始できません: ${error.name}`;
+  }
 }
-//8の字運動(キャリブレーション)の終了
+
+// キャリブレーション終了
 function finishFig8_Det() {
   if (!fig8_Active) return;
   fig8_Active = false;
   fig8_CaliDone = true;
+  if (magnetometerSensor){
+    magnetometerSensor.stop();
+  }
   caliModal.hidden = true;
 }
