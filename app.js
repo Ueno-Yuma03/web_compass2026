@@ -490,7 +490,10 @@ function startFig8_Det() {
     magnetometerSensor = new Magnetometer({frequency: 30});
     magnetometerSensor.addEventListener("reading", handleMagnetometer);
     magnetometerSensor.addEventListener("error", event => {
-      caliStatus.textContent = `磁気センサーエラー: ${event.error?.name ?? "不明"}`;
+      const err = event.error;
+      caliStatus.textContent =
+        `磁気センサーエラー: ${err?.name ?? "不明"}\n` +
+        `詳細: ${err?.message ?? "詳細なし"}`;
     });
     magnetometerSamples.length = 0;
     debug.textContent = "";
