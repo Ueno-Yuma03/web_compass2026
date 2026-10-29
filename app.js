@@ -470,6 +470,7 @@ function handleMotion(event) {
   if (motionSamples.length < 30) {
     caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
   }
+  updateCalibrationDebug();
   const result = detectFigureEight(motionSamples);
   if (result) {
     caliStatus.textContent = "8の字らしい動きを検出しました。キャリブレーション完了!";
@@ -497,6 +498,16 @@ function handleOrientation_Calibrate(event) {
   while (headingSamples.length > 0  &&  now - headingSamples[0].time > 4000){
     headingSamples.shift();
   }
+  updateCalibrationDebug();
+}
+
+function updateCalibrationDebug() {
+  const headingResult = analyzeHeading(headingSamples);
+  debug.innerHTML =
+    `加速度サンプル数: ${motionSamples.length}<br>` +
+    `方位サンプル数: ${headingSamples.length}<br>` +
+    `方位の累積変化: ${headingResult ? headingResult.totalRotation.toFixed(1) + "°" : "データ不足"}<br>` +
+    `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}`;
 }
 
 // 加速度の変化から8の字らしい動きを推定する
@@ -528,7 +539,7 @@ function detectFigureEight(samples) {
     `directionChanges: ${direct_Changes}<br>` +
     `samples: ${samples.length}`;
 
-   return enuf_Rotate && enuf_Rev && enuf_Move;
+  return enuf_Rotate && enuf_Rev && enuf_Move;
 }
 
 function angleDifference(current, previous){
@@ -546,7 +557,7 @@ function analyzeHeading(samples){
   // 小さな方位の揺れを無視する
   const deadZone = 1.5;
   let unwrappedHeading = samples[0].heading;
-  for (let i=1; i<samples.length; i++) {
+  for(let i=1; i<samples.length; i++){
     const diff = angleDifference(samples[i].heading, samples[i - 1].heading);
     totalRotation += Math.abs(diff);
     unwrappedHeading += diff;
