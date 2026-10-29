@@ -499,27 +499,6 @@ function handleOrientation_Calibrate(event) {
   }
 }
 
-//変化回数の判定方式
-function countDirectionChanges(values, deadZone = 0.5) {
-  let pre_Sign = 0;
-  let changes = 0;
-  for (const value of values) {
-    let sign = 0;
-    if (value > deadZone) {
-      sign = 1;
-    } else if (value < -deadZone) {
-      sign = -1;
-    }
-    // しきい値内の値では前回の方向を維持する
-    if (sign === 0) continue;
-    if (pre_Sign !== 0 && sign !== pre_Sign) {
-      changes++;
-    }
-    pre_Sign = sign;
-  }
-  return changes;
-}
-
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
   if (samples.length < 60) return false;
@@ -532,13 +511,17 @@ function detectFigureEight(samples) {
   const rangeX = Math.max(...xs) - Math.min(...xs);
   const rangeY = Math.max(...ys) - Math.min(...ys);
 
-  function countDirect_Changes(values, deadZone = 2.0) {
+  function countDirect_Changes(values, deadZone = 0.5) {
     let pre_Sign = 0;
     let changes = 0;
     for (const value of values) {
       let sign = 0;
-      if (value > deadZone) sign = 1;
-      if (value < -deadZone) sign = -1;
+      if (value > deadZone) {
+        sign = 1;
+      } else if (value < -deadZone) {
+        sign = -1;
+      }
+      // しきい値内の値では前回の方向を維持する
       if (sign === 0) continue;
       if (pre_Sign !== 0 && sign !== pre_Sign) {
         changes++;
