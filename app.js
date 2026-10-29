@@ -501,48 +501,62 @@ function handleOrientation_Calibrate(event) {
 
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
-  debug.textContent = `samples: ${samples.length}`;
   if (samples.length < 60) return false;
-  // 十分な時間、動きが記録されていること
-  const duration = samples[samples.length - 1].time - samples[0].time;
+  // 加速度データの取得時間
+  const duration = samples[samples.length -1].time - samples[0].time;
   if (duration < 2500) return false;
+  // 加速度の変化幅
   const xs = samples.map(s => s.x);
   const ys = samples.map(s => s.y);
   const rangeX = Math.max(...xs) - Math.min(...xs);
   const rangeY = Math.max(...ys) - Math.min(...ys);
+
   function countDirect_Changes(values, deadZone = 2.0) {
-    let preSign = 0;
+    let pre_Sign = 0;
     let changes = 0;
     for (const value of values) {
       let sign = 0;
       if (value > deadZone) sign = 1;
       if (value < -deadZone) sign = -1;
       if (sign === 0) continue;
-      if (preSign !== 0 && sign !== preSign) {
+      if (pre_Sign !== 0 && sign !== pre_Sign) {
         changes++;
       }
-      preSign = sign;
+      pre_Sign = sign;
     }
     return changes;
   }
   const changesX = countDirect_Changes(xs);
   const changesY = countDirect_Changes(ys);
+  // 方位角の変化を分析
+  const headingResult = analyzeHeading(headingSamples);
+  // 方位角のデータが不足している場合は判定しない
+  if (!headingResult) return false;
+  const { totalRotation, direct_Changes } = headingResult;
+  // デバッグ表示
   debug.innerHTML =
-  `rangeX: ${rangeX.toFixed(2)}<br>` +
-  `rangeY: ${rangeY.toFixed(2)}<br>` +
-  `changesX: ${changesX}<br>` +
-  `changesY: ${changesY}<br>` +
-  `samples: ${samples.length}`;
+    `rangeX: ${rangeX.toFixed(2)}<br>` +
+    `rangeY: ${rangeY.toFixed(2)}<br>` +
+    `changesX: ${changesX}<br>` +
+    `changesY: ${changesY}<br>` +
+    `totalRotation: ${totalRotation.toFixed(1)}°<br>` +
+    `directionChanges: ${direct_Changes}<br>` +
+    `samples: ${samples.length}`;
 
-  // すべての条件を満たしたときだけ候補とする
+  // 加速度と方位角の両方で判定
   return (
     rangeX > 4.0 &&
     rangeY > 4.0 &&
     changesX >= 5 &&
-    changesY >= 5
+    changesY >= 5 &&
+    totalRotation >= 60 &&
+    direct_Changes >= 1
   );
 }
 
+function angleDifference(current, previous) {
+  return ((current - previous + 540) % 360) - 180;
+}
 function analyzeHeading(samples) {
   if (samples.length < 2) {
     return null;
@@ -576,19 +590,22 @@ function clearMotionSamples() {
 }
 //8の字運動(キャリブレーション)の開始
 function startFig8_Det() {
-  window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
   if (fig8_Active || fig8_CaliDone) return;
   fig8_Active = true;
+  // 過去のデータをリセット
+  clearMotionSamples();
+  headingSamples.length = 0;
+  motionHitCount = 0;
   caliModal.hidden = false;
   caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-  clearMotionSamples();
-  motionHitCount = 0;
+  //方位角の測定開始
+  window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
 }
 //8の字運動(キャリブレーション)の終了
 function finishFig8_Det() {
   if (!fig8_Active) return;
   fig8_Active = false;
+  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
   fig8_CaliDone = true;
   caliModal.hidden = true;
-  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
 }
