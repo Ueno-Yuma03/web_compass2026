@@ -479,6 +479,26 @@ function handleMotion(event) {
   }
 }
 
+//方位センサーによるキャリブレーション
+const headingSamples = [];
+function handleOrientation_Calibrate(event) {
+  if (!fig8_Active) return;
+  let heading;
+  if (Number.isFinite(event.webkitCompassHeading)) {
+    heading = event.webkitCompassHeading;
+  } else if (event.absolute === true  &&  Number.isFinite(event.alpha)){
+    heading = (360 - event.alpha + 360) % 360;
+  } else {
+    return;
+  }
+  const now = performance.now();
+  headingSamples.push({ time: now, heading });
+  // 直近4秒分を保持
+  while (headingSamples.length > 0  &&  now - headingSamples[0].time > 4000){
+    headingSamples.shift();
+  }
+}
+
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
   debug.textContent = `samples: ${samples.length}`;
@@ -490,24 +510,23 @@ function detectFigureEight(samples) {
   const ys = samples.map(s => s.y);
   const rangeX = Math.max(...xs) - Math.min(...xs);
   const rangeY = Math.max(...ys) - Math.min(...ys);
-  function countDirectionChanges(values, deadZone = 2.0) {
-    let previousSign = 0;
+  function countDirect_Changes(values, deadZone = 2.0) {
+    let preSign = 0;
     let changes = 0;
     for (const value of values) {
       let sign = 0;
       if (value > deadZone) sign = 1;
       if (value < -deadZone) sign = -1;
       if (sign === 0) continue;
-      if (previousSign !== 0 && sign !== previousSign) {
+      if (preSign !== 0 && sign !== preSign) {
         changes++;
       }
-      previousSign = sign;
+      preSign = sign;
     }
     return changes;
   }
-  const changesX = countDirectionChanges(xs);
-  const changesY = countDirectionChanges(ys);
-
+  const changesX = countDirect_Changes(xs);
+  const changesY = countDirect_Changes(ys);
   debug.innerHTML =
   `rangeX: ${rangeX.toFixed(2)}<br>` +
   `rangeY: ${rangeY.toFixed(2)}<br>` +
@@ -524,6 +543,31 @@ function detectFigureEight(samples) {
   );
 }
 
+function analyzeHeading(samples) {
+  if (samples.length < 2) {
+    return null;
+  }
+  let totalRotation = 0;
+  let direct_Changes = 0;
+  let pre_direct = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const diff = angleDifference(
+      samples[i].heading,
+      samples[i-1].heading
+    );
+    totalRotation += Math.abs(diff);
+    // 小さな変動を無視する
+    const direction = diff > 2 ? 1 : diff < -2 ? -1 : 0;
+    if (direction !== 0  &&  pre_direct !== 0  &&  direction !== pre_direct){
+      direct_Changes++;
+    }
+    if (direction !== 0) {
+      pre_direct = direction;
+    }
+  }
+  return { totalRotation, direct_Changes };
+}
+
 // 加速度センサーのイベントを登録
 window.addEventListener("devicemotion", handleMotion);
 // 記録をリセット
@@ -532,6 +576,7 @@ function clearMotionSamples() {
 }
 //8の字運動(キャリブレーション)の開始
 function startFig8_Det() {
+  window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
   if (fig8_Active || fig8_CaliDone) return;
   fig8_Active = true;
   caliModal.hidden = false;
@@ -545,4 +590,5 @@ function finishFig8_Det() {
   fig8_Active = false;
   fig8_CaliDone = true;
   caliModal.hidden = true;
+  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
 }
