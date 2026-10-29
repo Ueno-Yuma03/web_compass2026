@@ -501,43 +501,24 @@ function handleOrientation_Calibrate(event) {
 
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
-  if (samples.length < 60) return false;
-  // 加速度データの取得時間
+  // 加速度のサンプルが十分に集まっているか
+  if (samples.length < 30) return false;
   const duration = samples[samples.length -1].time - samples[0].time;
   if (duration < 2500) return false;
-  // 加速度の変化幅
+  // X・Y方向の加速度の変化範囲
   const xs = samples.map(s => s.x);
   const ys = samples.map(s => s.y);
   const rangeX = Math.max(...xs) - Math.min(...xs);
   const rangeY = Math.max(...ys) - Math.min(...ys);
-
-  function countDirect_Changes(values, deadZone = 0.5) {
-    let pre_Sign = 0;
-    let changes = 0;
-    for (const value of values) {
-      let sign = 0;
-      if (value > deadZone) {
-        sign = 1;
-      } else if (value < -deadZone) {
-        sign = -1;
-      }
-      // しきい値内の値では前回の方向を維持する
-      if (sign === 0) continue;
-      if (pre_Sign !== 0 && sign !== pre_Sign) {
-        changes++;
-      }
-      pre_Sign = sign;
-    }
-    return changes;
-  }
-  const changesX = countDirect_Changes(xs);
-  const changesY = countDirect_Changes(ys);
-  // 方位角の変化を分析
+  // 方位の変化を分析
   const headingResult = analyzeHeading(headingSamples);
-  // 方位角のデータが不足している場合は判定しない
   if (!headingResult) return false;
-  const { totalRotation, direct_Changes } = headingResult;
-  // デバッグ表示
+  // 初期調整用の仮のしきい値
+  const enuf_Rotate =  headingResult.totalRotation >= 100;
+  const enuf_Rev = headingResult.reversals >= 2;
+  const enuf_Move =  rangeX >= 1.0 && rangeY >= 1.0;
+
+  //デバック表示
   debug.innerHTML =
     `rangeX: ${rangeX.toFixed(2)}<br>` +
     `rangeY: ${rangeY.toFixed(2)}<br>` +
@@ -547,53 +528,66 @@ function detectFigureEight(samples) {
     `directionChanges: ${direct_Changes}<br>` +
     `samples: ${samples.length}`;
 
-  // 加速度と方位角の両方で判定
-  return (
-    rangeX > 4.0 &&
-    rangeY > 4.0 &&
-    changesX >= 5 &&
-    changesY >= 5 &&
-    totalRotation >= 60 &&
-    direct_Changes >= 1
-  );
+   return enuf_Rotate && enuf_Rev && enuf_Move;
 }
 
-function angleDifference(current, previous) {
+function angleDifference(current, previous){
   return ((current - previous + 540) % 360) - 180;
 }
-function analyzeHeading(samples) {
-  if (samples.length < 2) {
-    return null;
-  }
+function analyzeHeading(samples){
+  if (samples.length < 10) return null;
   let totalRotation = 0;
-  let direct_Changes = 0;
-  let pre_direct = 0;
-  for (let i = 1; i < samples.length; i++) {
-    const diff = angleDifference(
-      samples[i].heading,
-      samples[i-1].heading
-    );
+  let reversals = 0;
+  // 方位の連続的な変化を追跡する
+  let direction = 0;
+  let extreme = samples[0].heading;
+  // 逆方向へ何度戻ったら切り替わりと認めるか
+  const reversalThreshold = 20;
+  // 小さな方位の揺れを無視する
+  const deadZone = 1.5;
+  let unwrappedHeading = samples[0].heading;
+  for (let i=1; i<samples.length; i++) {
+    const diff = angleDifference(samples[i].heading, samples[i - 1].heading);
     totalRotation += Math.abs(diff);
-    // 小さな変動を無視する
-    const direction = diff > 2 ? 1 : diff < -2 ? -1 : 0;
-    if (direction !== 0  &&  pre_direct !== 0  &&  direction !== pre_direct){
-      direct_Changes++;
+    unwrappedHeading += diff;
+    if(Math.abs(diff) < deadZone)continue;
+    const newDirection = diff > 0 ? 1 : -1;
+    if(direction === 0){
+      direction = newDirection;
+      extreme = unwrappedHeading;
+      continue;
     }
-    if (direction !== 0) {
-      pre_direct = direction;
+    if(direction === 1){
+      // 右方向への回転中は最大値を記録
+      extreme = Math.max(extreme, unwrappedHeading);
+      // 最大値から十分に戻ったら反転と判定
+      if(extreme-unwrappedHeading >= reversalThreshold){
+        reversals++;
+        direction = -1;
+        extreme = unwrappedHeading;
+      }
+    } else{
+      // 左方向への回転中は最小値を記録
+      extreme = Math.min(extreme, unwrappedHeading);
+      // 最小値から十分に戻ったら反転と判定
+      if(unwrappedHeading-extreme >= reversalThreshold){
+        reversals++;
+        direction = 1;
+        extreme = unwrappedHeading;
+      }
     }
   }
-  return { totalRotation, direct_Changes };
+  return {totalRotation, reversals};
 }
 
 // 加速度センサーのイベントを登録
 window.addEventListener("devicemotion", handleMotion);
 // 記録をリセット
-function clearMotionSamples() {
+function clearMotionSamples(){
   motionSamples.length = 0;
 }
 //8の字運動(キャリブレーション)の開始
-function startFig8_Det() {
+function startFig8_Det(){
   if (fig8_Active || fig8_CaliDone) return;
   fig8_Active = true;
   // 過去のデータをリセット
@@ -606,10 +600,10 @@ function startFig8_Det() {
   window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
 }
 //8の字運動(キャリブレーション)の終了
-function finishFig8_Det() {
+function finishFig8_Det(){
   if (!fig8_Active) return;
   fig8_Active = false;
-  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
   fig8_CaliDone = true;
+  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
   caliModal.hidden = true;
 }
