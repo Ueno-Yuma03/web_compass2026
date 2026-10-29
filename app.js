@@ -528,17 +528,13 @@ function detectFigureEight(samples) {
   const enuf_Rotate =  headingResult.totalRotation >= 100;
   const enuf_Rev = headingResult.reversals >= 2;
   const enuf_Move =  rangeX >= 1.0 && rangeY >= 1.0;
-
   //デバック表示
   debug.innerHTML =
     `rangeX: ${rangeX.toFixed(2)}<br>` +
     `rangeY: ${rangeY.toFixed(2)}<br>` +
-    `changesX: ${changesX}<br>` +
-    `changesY: ${changesY}<br>` +
-    `totalRotation: ${totalRotation.toFixed(1)}°<br>` +
-    `directionChanges: ${direct_Changes}<br>` +
+    `totalRotation: ${headingResult.totalRotation.toFixed(1)}°<br>` +
+    `reversals: ${headingResult.reversals}<br>` +
     `samples: ${samples.length}`;
-
   return enuf_Rotate && enuf_Rev && enuf_Move;
 }
 
