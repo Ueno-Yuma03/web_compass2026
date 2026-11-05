@@ -485,17 +485,16 @@ const headingSamples = [];
 function handleOrientation_Calibrate(event) {
   if (!fig8_Active) return;
   const result = getCompassHeading(event);
-  if (!result) return;
   const now = performance.now();
   headingSamples.push({
     time: now,
-    heading: result.heading,
+    heading: result ? result.heading : null,
     beta: event.beta,
     gamma: event.gamma,
     alpha: event.alpha
   });
   // 直近4秒分を保持
-  while (headingSamples.length > 0  &&  now - headingSamples[0].time > 4000){
+  while (headingSamples.length>0 && now-headingSamples[0].time>4000){
     headingSamples.shift();
   }
   updateCalibrationDebug();
@@ -562,6 +561,7 @@ function angleDifference(current, previous){
   return ((current - previous + 540) % 360) - 180;
 }
 function analyzeHeading(samples){
+  samples = samples.filter(s => Number.isFinite(s.heading));
   if (samples.length < 10) return null;
   let totalRotation = 0;
   let reversals = 0;
@@ -625,6 +625,7 @@ function startFig8_Det(){
   caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
   //方位角の測定開始
   window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
+  window.addEventListener("deviceorientation", handleOrientation_Calibrate);
 }
 //8の字運動(キャリブレーション)の終了
 function finishFig8_Det(){
@@ -632,5 +633,6 @@ function finishFig8_Det(){
   fig8_Active = false;
   fig8_CaliDone = true;
   window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
+  window.removeEventListener("deviceorientation", handleOrientation_Calibrate);
   caliModal.hidden = true;
 }
