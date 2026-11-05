@@ -510,7 +510,7 @@ function handleOrientation_Calibrate(event) {
   updateCalibrationDebug();
 }
 
-function updateCalibrationDebug() {
+function updateCalibrationDebug(){
   const headingResult = analyzeHeading(headingSamples);
   debug.innerHTML =
     `方位イベント受信回数: ${orientationEventCount}<br>` +
@@ -558,12 +558,12 @@ function detectFigureEight(samples) {
   if (!tiltResult) return false;
   const enufTilt = tiltResult.rangeBeta >= 10 && tiltResult.rangeGamma >= 10;
   //デバック表示
-  debug.innerHTML =
+  /*debug.innerHTML =
     `rangeX: ${rangeX.toFixed(2)}<br>` +
     `rangeY: ${rangeY.toFixed(2)}<br>` +
     `totalRotation: ${headingResult.totalRotation.toFixed(1)}°<br>` +
     `reversals: ${headingResult.reversals}<br>` +
-    `samples: ${samples.length}`;
+    `samples: ${samples.length}`;*/
   return enuf_Rotate && enuf_Rev && enuf_Move && enufTilt;
 }
 
@@ -637,7 +637,6 @@ function startFig8_Det(){
   caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
   //方位角の測定開始
   window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
-  window.addEventListener("deviceorientation", handleOrientation_Calibrate);
 }
 //8の字運動(キャリブレーション)の終了
 function finishFig8_Det(){
@@ -645,6 +644,5 @@ function finishFig8_Det(){
   fig8_Active = false;
   fig8_CaliDone = true;
   window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
-  window.removeEventListener("deviceorientation", handleOrientation_Calibrate);
   caliModal.hidden = true;
 }
