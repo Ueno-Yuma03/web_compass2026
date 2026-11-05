@@ -158,18 +158,6 @@ function handleOrientation(event) {
   rawHeading = heading;
   Beta = event.beta;
   Gamma = event.gamma;
-/*
-  ang_val.textContent =
-    `イベント: ${event.type}\n` +
-    `方位: ${heading.toFixed(1)}°<br>` +
-    `absolute: ${event.absolute}<br>` +
-    `alpha: ${event.alpha}<br>` +
-    `beta: ${Beta.toFixed(1)}<br>` +
-    `gamma: ${Gamma.toFixed(1)}`;
-  debug.textContent =
-  `イベント: ${event.type}\n` +
-  `alpha: ${event.alpha}\n` +
-  `計算後: ${heading.toFixed(1)}°`;*/
 
   // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
   if (!started || !fig8_CaliDone) {
@@ -519,6 +507,17 @@ function updateCalibrationDebug(){
     `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}<br><br>`+ lastOrientationInfo;
 }
 
+function getCompassHeading(event) {
+  // iOSの場合
+  if (typeof event.webkitCompassHeading==="number" && Number.isFinite(event.webkitCompassHeading)){
+    return {heading: event.webkitCompassHeading};
+  }
+  // Androidの場合
+  if (event.absolute===true && typeof event.alpha==="number" && Number.isFinite(event.alpha)){
+    return {heading: (360 - event.alpha + 360) % 360};
+  }
+  return null;
+}
 // beta, gammaの変化量
 function analyzeTilt(samples) {
   if (samples.length < 10) return null;
@@ -637,6 +636,7 @@ function startFig8_Det(){
   caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
   //方位角の測定開始
   window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
+  window.addEventListener("deviceorientation", handleOrientation_Calibrate);
 }
 //8の字運動(キャリブレーション)の終了
 function finishFig8_Det(){
@@ -644,5 +644,6 @@ function finishFig8_Det(){
   fig8_Active = false;
   fig8_CaliDone = true;
   window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
+  window.removeEventListener("deviceorientation", handleOrientation_Calibrate);
   caliModal.hidden = true;
 }
