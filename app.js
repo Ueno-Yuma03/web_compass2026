@@ -40,6 +40,9 @@ const caliStatus = document.getElementById("calibration-status");
 // 動き検出の仮設定
 const motionThreshold = 1.2; // m/s²
 let motionHitCount = 0;
+//デバッグ表示用
+let orientationEventCount = 0;
+let lastOrientationInfo = "イベント未受信";
 
 
 /*モード選択*/
@@ -484,8 +487,16 @@ function handleMotion(event) {
 const headingSamples = [];
 function handleOrientation_Calibrate(event) {
   if (!fig8_Active) return;
+  orientationEventCount++;
   const result = getCompassHeading(event);
   const now = performance.now();
+  lastOrientationInfo =
+    `イベント: ${event.type}<br>` +
+    `alpha: ${event.alpha}<br>` +
+    `beta: ${event.beta}<br>` +
+    `gamma: ${event.gamma}<br>` +
+    `absolute: ${event.absolute}<br>` +
+    `方位取得: ${result ? result.heading : "失敗"}`;
   headingSamples.push({
     time: now,
     heading: result ? result.heading : null,
@@ -493,7 +504,6 @@ function handleOrientation_Calibrate(event) {
     gamma: event.gamma,
     alpha: event.alpha
   });
-  // 直近4秒分を保持
   while (headingSamples.length>0 && now-headingSamples[0].time>4000){
     headingSamples.shift();
   }
@@ -503,10 +513,10 @@ function handleOrientation_Calibrate(event) {
 function updateCalibrationDebug() {
   const headingResult = analyzeHeading(headingSamples);
   debug.innerHTML =
-    `加速度サンプル数: ${motionSamples.length}<br>` +
+    `方位イベント受信回数: ${orientationEventCount}<br>` +
     `方位サンプル数: ${headingSamples.length}<br>` +
     `方位の累積変化: ${headingResult ? headingResult.totalRotation.toFixed(1) + "°" : "データ不足"}<br>` +
-    `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}`;
+    `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}<br><br>`+ lastOrientationInfo;
 }
 
 // beta, gammaの変化量
@@ -616,6 +626,8 @@ function clearMotionSamples(){
 //8の字運動(キャリブレーション)の開始
 function startFig8_Det(){
   if (fig8_Active || fig8_CaliDone) return;
+  orientationEventCount = 0;
+  lastOrientationInfo = "イベント未受信";
   fig8_Active = true;
   // 過去のデータをリセット
   clearMotionSamples();
