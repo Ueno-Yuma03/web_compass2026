@@ -537,10 +537,10 @@ function analyzeTilt(samples) {
 
 // 加速度の変化から8の字らしい動きを推定する
 function detectFigureEight(samples) {
-  // 加速度のサンプルが十分に集まっているか
-  if (samples.length < 30) return false;
+  // 加速度のサンプル数
+  if (samples.length < 100) return false;
   const duration = samples[samples.length -1].time - samples[0].time;
-  if (duration < 2500) return false;
+  if (duration < 4000) return false;
   // X・Y方向の加速度の変化範囲
   const xs = samples.map(s => s.x);
   const ys = samples.map(s => s.y);
@@ -550,12 +550,12 @@ function detectFigureEight(samples) {
   const headingResult = analyzeHeading(headingSamples);
   if (!headingResult) return false;
   // 初期調整用の仮のしきい値
-  const enuf_Rotate =  headingResult.totalRotation >= 100;
-  const enuf_Rev = headingResult.reversals >= 2;
-  const enuf_Move =  rangeX >= 1.0 && rangeY >= 1.0;
+  const enuf_Rotate =  headingResult.totalRotation >= 240;
+  const enuf_Rev = headingResult.reversals >= 8;
+  const enuf_Move =  rangeX >= 2.0 && rangeY >= 2.0;
   const tiltResult = analyzeTilt(headingSamples);
   if (!tiltResult) return false;
-  const enufTilt = tiltResult.rangeBeta >= 10 && tiltResult.rangeGamma >= 10;
+  const enufTilt = tiltResult.rangeBeta >= 170 && tiltResult.rangeGamma >= 15;
   //デバック表示
   /*debug.innerHTML =
     `rangeX: ${rangeX.toFixed(2)}<br>` +
@@ -578,7 +578,7 @@ function analyzeHeading(samples){
   let direction = 0;
   let extreme = samples[0].heading;
   // 逆方向へ何度戻ったら切り替わりと認めるか
-  const reversalThreshold = 20;
+  const reversalThreshold = 30;
   // 小さな方位の揺れを無視する
   const deadZone = 1.5;
   let unwrappedHeading = samples[0].heading;
@@ -627,6 +627,7 @@ function startFig8_Det(){
   if (fig8_Active || fig8_CaliDone) return;
   orientationEventCount = 0;
   lastOrientationInfo = "イベント未受信";
+  fig8CandidateSince = null;
   fig8_Active = true;
   // 過去のデータをリセット
   clearMotionSamples();
