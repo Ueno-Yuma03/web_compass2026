@@ -484,16 +484,16 @@ function handleMotion(event) {
 const headingSamples = [];
 function handleOrientation_Calibrate(event) {
   if (!fig8_Active) return;
-  let heading;
-  if (Number.isFinite(event.webkitCompassHeading)) {
-    heading = event.webkitCompassHeading;
-  } else if (event.absolute === true  &&  Number.isFinite(event.alpha)){
-    heading = (360 - event.alpha + 360) % 360;
-  } else {
-    return;
-  }
+  const result = getCompassHeading(event);
+  if (!result) return;
   const now = performance.now();
-  headingSamples.push({ time: now, heading });
+  headingSamples.push({
+    time: now,
+    heading: result.heading,
+    beta: event.beta,
+    gamma: event.gamma,
+    alpha: event.alpha
+  });
   // 直近4秒分を保持
   while (headingSamples.length > 0  &&  now - headingSamples[0].time > 4000){
     headingSamples.shift();
@@ -508,6 +508,23 @@ function updateCalibrationDebug() {
     `方位サンプル数: ${headingSamples.length}<br>` +
     `方位の累積変化: ${headingResult ? headingResult.totalRotation.toFixed(1) + "°" : "データ不足"}<br>` +
     `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}`;
+}
+
+// beta, gammaの変化量
+function analyzeTilt(samples) {
+  if (samples.length < 10) return null;
+  const betas = samples
+    .map(s => s.beta)
+    .filter(Number.isFinite);
+  const gammas = samples
+    .map(s => s.gamma)
+    .filter(Number.isFinite);
+  if (betas.length < 10 || gammas.length < 10) {
+    return null;
+  }
+  const rangeBeta = Math.max(...betas) - Math.min(...betas);
+  const rangeGamma = Math.max(...gammas) - Math.min(...gammas);
+  return {rangeBeta, rangeGamma};
 }
 
 // 加速度の変化から8の字らしい動きを推定する
@@ -528,6 +545,9 @@ function detectFigureEight(samples) {
   const enuf_Rotate =  headingResult.totalRotation >= 100;
   const enuf_Rev = headingResult.reversals >= 2;
   const enuf_Move =  rangeX >= 1.0 && rangeY >= 1.0;
+  const tiltResult = analyzeTilt(headingSamples);
+  if (!tiltResult) return false;
+  const enufTilt = tiltResult.rangeBeta >= 10 && tiltResult.rangeGamma >= 10;
   //デバック表示
   debug.innerHTML =
     `rangeX: ${rangeX.toFixed(2)}<br>` +
@@ -535,7 +555,7 @@ function detectFigureEight(samples) {
     `totalRotation: ${headingResult.totalRotation.toFixed(1)}°<br>` +
     `reversals: ${headingResult.reversals}<br>` +
     `samples: ${samples.length}`;
-  return enuf_Rotate && enuf_Rev && enuf_Move;
+  return enuf_Rotate && enuf_Rev && enuf_Move && enufTilt;
 }
 
 function angleDifference(current, previous){
