@@ -190,7 +190,7 @@ function updateCompass(){
     ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
-  }
+  }/*
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
@@ -198,7 +198,7 @@ function updateCompass(){
         `limit = ${limitHeading.toFixed(1)}<br>`+
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
-        `timer = ${timer === null ? "null" : "running"}`;
+        `timer = ${timer === null ? "null" : "running"}`;*/
 }
 
 function rotateCompass(wrapper, angle) {
@@ -452,11 +452,11 @@ async function sendAngle() {
   
   BLE_WriteBusy = true;
   try{
-    //rawHeadingを文字列に変換
-    const data = new TextEncoder().encode(rawHeading.toFixed(1));
+    const theDiff = ((rawHeading - baseOffset + 540) % 360) - 180;
+    const data = new TextEncoder().encode(theDiff.toFixed(1));
     // Arduinoへ送信
     await BLE_Char.writeValue(data);
-    BLESendStatus.textContent = "送信中: " + rawHeading.toFixed(1) + "°";
+    BLESendStatus.textContent = "送信中: " + theDiff.toFixed(1) + "°";
   }catch(error) {
     BLESendStatus.textContent = "送信エラー: " + error.message;
     console.error(error);
