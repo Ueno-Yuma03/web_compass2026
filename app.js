@@ -412,13 +412,13 @@ function formatOrientation(event, name) {
     `beta: ${event.beta?.toFixed(1)}\n` +
     `gamma: ${event.gamma?.toFixed(1)}\n`
   );
-}
+}/*
 window.addEventListener("deviceorientation", event => {
   normalOutput.textContent = formatOrientation(event, "通常イベント");
 });
 window.addEventListener("deviceorientationabsolute", event => {
   absoluteOutput.textContent = formatOrientation(event, "絶対方位イベント");
-});
+});*/
 
 // Arduino Uno R4 WiFiにBLE接続
 BLEConnectBtn.addEventListener("click", async () => {
