@@ -31,19 +31,14 @@ let displayHeading = (rawHeading - baseOffset + 360) % 360;
 let labels = [];
 let Beta = null;
 let Gamma = null;
-/*キャリブレーション用*/
-let fig8_PrmptShown = false;  //キャリブレーション(8の字運動)を行ったかどうか
-let fig8_CaliDone = false;     //初回のキャリブレーションを終えたかどうか
-let fig8_Active = false;
-const caliModal = document.getElementById("calibration-modal");
-const caliStatus = document.getElementById("calibration-status");
-// 動き検出の仮設定
-const motionThreshold = 1.2; // m/s²
-let motionHitCount = 0;
-//デバッグ表示用
-let orientationEventCount = 0;
-let lastOrientationInfo = "イベント未受信";
-
+// Bluetooth通信
+const SERVICE_UUID = "12345678-9012-3456-7890-123456789012";
+const CHARACTERISTIC_UUID = "24681012-2204-2204-2204-141618202224";
+let BLE_Device = null;
+let BLE_Char = null;
+const BLEConnectBtn = document.getElementById("ble-connect-btn");
+const BLE_Status = document.getElementById("ble-status");
+const BLESendStatus = document.getElementById("ble-send-status");
 
 /*モード選択*/
 document.querySelectorAll(".mode-btn").forEach(button => {
@@ -433,218 +428,25 @@ window.addEventListener("deviceorientationabsolute", event => {
   absoluteOutput.textContent = formatOrientation(event, "絶対方位イベント");
 });
 
-
-// 8の字運動検出用のデータ記録
-const motionSamples = [];
-function handleMotion(event) {
-  if (!fig8_Active) return;
-  const acc = event.acceleration;
-  // 加速度のXYZ成分が取得できない場合
-  if (acc?.x == null || acc?.y == null || acc?.z == null) {
-    caliStatus.textContent = "加速度を取得できません。端末のセンサーを確認してください。";
-    return;
-  }
-  const now = performance.now();
-  // 加速度データを記録
-  motionSamples.push({
-    time: now,
-    x: acc.x,
-    y: acc.y,
-    z: acc.z
-  });
-  // 直近4秒分のデータだけを残す
-  const windowMs = 4000;
-  while (motionSamples.length > 0 && now - motionSamples[0].time > windowMs){
-    motionSamples.shift();
-  }
-  // 判定に必要な時間がたまるまでは待つ
-  if (motionSamples.length < 30) {
-    caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-  }
-  updateCalibrationDebug();
-  const result = detectFigureEight(motionSamples);
-  if (result) {
-    caliStatus.textContent = "8の字らしい動きを検出しました。キャリブレーション完了!";
-    finishFig8_Det();
-  } else{
-    caliStatus.textContent = "8の字を描くように、左右を大きくゆっくり動かしてください。";
-  }
-}
-
-//方位センサーによるキャリブレーション
-const headingSamples = [];
-function handleOrientation_Calibrate(event) {
-  if (!fig8_Active) return;
-  orientationEventCount++;
-  const result = getCompassHeading(event);
-  const now = performance.now();
-  lastOrientationInfo =
-    `イベント: ${event.type}<br>` +
-    `alpha: ${event.alpha}<br>` +
-    `beta: ${event.beta}<br>` +
-    `gamma: ${event.gamma}<br>` +
-    `absolute: ${event.absolute}<br>` +
-    `方位取得: ${result ? result.heading : "失敗"}`;
-  headingSamples.push({
-    time: now,
-    heading: result ? result.heading : null,
-    beta: event.beta,
-    gamma: event.gamma,
-    alpha: event.alpha
-  });
-  while (headingSamples.length>0 && now-headingSamples[0].time>4000){
-    headingSamples.shift();
-  }
-  updateCalibrationDebug();
-}
-
-function updateCalibrationDebug(){
-  const headingResult = analyzeHeading(headingSamples);
-  debug.innerHTML =
-    `方位イベント受信回数: ${orientationEventCount}<br>` +
-    `方位サンプル数: ${headingSamples.length}<br>` +
-    `方位の累積変化: ${headingResult ? headingResult.totalRotation.toFixed(1) + "°" : "データ不足"}<br>` +
-    `方位の反転回数: ${headingResult ? headingResult.reversals : "データ不足"}<br><br>`+ lastOrientationInfo;
-}
-
-function getCompassHeading(event) {
-  // iOSの場合
-  if (typeof event.webkitCompassHeading==="number" && Number.isFinite(event.webkitCompassHeading)){
-    return {heading: event.webkitCompassHeading};
-  }
-  // Androidの場合
-  if (event.absolute===true && typeof event.alpha==="number" && Number.isFinite(event.alpha)){
-    return {heading: (360 - event.alpha + 360) % 360};
-  }
-  return null;
-}
-// beta, gammaの変化量
-function analyzeTilt(samples) {
-  if (samples.length < 10) return null;
-  const betas = samples
-    .map(s => s.beta)
-    .filter(Number.isFinite);
-  const gammas = samples
-    .map(s => s.gamma)
-    .filter(Number.isFinite);
-  if (betas.length < 10 || gammas.length < 10) {
-    return null;
-  }
-  const rangeBeta = Math.max(...betas) - Math.min(...betas);
-  const rangeGamma = Math.max(...gammas) - Math.min(...gammas);
-  return {rangeBeta, rangeGamma};
-}
-
-// 加速度の変化から8の字らしい動きを推定する
-function detectFigureEight(samples) {
-  // 加速度のサンプル数
-  if (samples.length < 100) return false;
-  const duration = samples[samples.length -1].time - samples[0].time;
-  if (duration < 4000) return false;
-  // X・Y方向の加速度の変化範囲
-  const xs = samples.map(s => s.x);
-  const ys = samples.map(s => s.y);
-  const rangeX = Math.max(...xs) - Math.min(...xs);
-  const rangeY = Math.max(...ys) - Math.min(...ys);
-  // 方位の変化を分析
-  const headingResult = analyzeHeading(headingSamples);
-  if (!headingResult) return false;
-  // 初期調整用の仮のしきい値
-  const enuf_Rotate =  headingResult.totalRotation >= 240;
-  const enuf_Rev = headingResult.reversals >= 8;
-  const enuf_Move =  rangeX >= 2.0 && rangeY >= 2.0;
-  const tiltResult = analyzeTilt(headingSamples);
-  if (!tiltResult) return false;
-  const enufTilt = tiltResult.rangeBeta >= 170 && tiltResult.rangeGamma >= 15;
-  //デバック表示
-  /*debug.innerHTML =
-    `rangeX: ${rangeX.toFixed(2)}<br>` +
-    `rangeY: ${rangeY.toFixed(2)}<br>` +
-    `totalRotation: ${headingResult.totalRotation.toFixed(1)}°<br>` +
-    `reversals: ${headingResult.reversals}<br>` +
-    `samples: ${samples.length}`;*/
-  return enuf_Rotate && enuf_Rev && enuf_Move && enufTilt;
-}
-
-function angleDifference(current, previous){
-  return ((current - previous + 540) % 360) - 180;
-}
-function analyzeHeading(samples){
-  samples = samples.filter(s => Number.isFinite(s.heading));
-  if (samples.length < 10) return null;
-  let totalRotation = 0;
-  let reversals = 0;
-  // 方位の連続的な変化を追跡する
-  let direction = 0;
-  let extreme = samples[0].heading;
-  // 逆方向へ何度戻ったら切り替わりと認めるか
-  const reversalThreshold = 30;
-  // 小さな方位の揺れを無視する
-  const deadZone = 1.5;
-  let unwrappedHeading = samples[0].heading;
-  for(let i=1; i<samples.length; i++){
-    const diff = angleDifference(samples[i].heading, samples[i - 1].heading);
-    totalRotation += Math.abs(diff);
-    unwrappedHeading += diff;
-    if(Math.abs(diff) < deadZone)continue;
-    const newDirection = diff > 0 ? 1 : -1;
-    if(direction === 0){
-      direction = newDirection;
-      extreme = unwrappedHeading;
-      continue;
-    }
-    if(direction === 1){
-      // 右方向への回転中は最大値を記録
-      extreme = Math.max(extreme, unwrappedHeading);
-      // 最大値から十分に戻ったら反転と判定
-      if(extreme-unwrappedHeading >= reversalThreshold){
-        reversals++;
-        direction = -1;
-        extreme = unwrappedHeading;
+// Arduino Uno R4 WiFiにBLE接続
+BLEConnectBtn.addEventListener("click", async () => {
+  try {
+    BLE_Status.textContent = "接続先を検索しています...";
+    // Arduinoを検索
+    BLE_Device = await navigator.bluetooth.requestDevice({
+      filters: [{ name: "ArduinoUNO_R4_WiFi" }], optionalServices: [SERVICE_UUID]});
+    // 切断時の処理
+    BLE_Device.addEventListener("gattserverdisconnected", () => {
+      BLE_Char = null;
+      BLE_Status.textContent = "切断されました";
       }
-    } else{
-      // 左方向への回転中は最小値を記録
-      extreme = Math.min(extreme, unwrappedHeading);
-      // 最小値から十分に戻ったら反転と判定
-      if(unwrappedHeading-extreme >= reversalThreshold){
-        reversals++;
-        direction = 1;
-        extreme = unwrappedHeading;
-      }
-    }
+    );
+    const server = await BLE_Device.gatt.connect();                             // Arduinoに接続
+    const service = await server.getPrimaryService(SERVICE_UUID);              // BLEサービスを取得
+    BLE_Char = await service.getCharacteristic(CHARACTERISTIC_UUID);  // 角度データ用の特性を取得
+    BLE_Status.textContent = "Arduinoに接続しました";
+  }catch(error) {
+    BLE_Status.textContent = "接続失敗：" + error.message;
+    console.error(error);
   }
-  return {totalRotation, reversals};
-}
-
-// 加速度センサーのイベントを登録
-window.addEventListener("devicemotion", handleMotion);
-// 記録をリセット
-function clearMotionSamples(){
-  motionSamples.length = 0;
-}
-//8の字運動(キャリブレーション)の開始
-function startFig8_Det(){
-  if (fig8_Active || fig8_CaliDone) return;
-  orientationEventCount = 0;
-  lastOrientationInfo = "イベント未受信";
-  fig8CandidateSince = null;
-  fig8_Active = true;
-  // 過去のデータをリセット
-  clearMotionSamples();
-  headingSamples.length = 0;
-  motionHitCount = 0;
-  caliModal.hidden = false;
-  caliStatus.textContent = "スマートフォンを空中で8の字に動かしてください。";
-  //方位角の測定開始
-  window.addEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
-  window.addEventListener("deviceorientation", handleOrientation_Calibrate);
-}
-//8の字運動(キャリブレーション)の終了
-function finishFig8_Det(){
-  if (!fig8_Active) return;
-  fig8_Active = false;
-  fig8_CaliDone = true;
-  window.removeEventListener("deviceorientationabsolute", handleOrientation_Calibrate);
-  window.removeEventListener("deviceorientation", handleOrientation_Calibrate);
-  caliModal.hidden = true;
-}
+});
