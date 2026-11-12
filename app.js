@@ -464,4 +464,4 @@ async function sendAngle() {
     BLE_WriteBusy = false;
   }
 }
-setInterval(sendAngle, 100);
+setInterval(sendAngle, 500);
