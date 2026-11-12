@@ -154,8 +154,8 @@ function handleOrientation(event) {
   Beta = event.beta;
   Gamma = event.gamma;
 
-  // 測定開始前、または初回キャリブレーション前はコンパスの測定処理を実行しない
-  if (!started || !fig8_CaliDone) {
+  // 測定開始前はコンパスの測定処理を実行しない
+  if (!started) {
     return;
   }
   //目標角度設定
@@ -190,7 +190,7 @@ function updateCompass(){
     ang_val.innerHTML = `左へ <span class="angle">${angle}°</span> ずれてます！`;
   } else {
     ang_val.textContent = "ぴったりです。";
-  }/*
+  }
   debug.innerHTML =
         `zero = ${zero_standard}<br>` +
         `display = ${displayHeading.toFixed(1)}<br>`+
@@ -198,7 +198,7 @@ function updateCompass(){
         `limit = ${limitHeading.toFixed(1)}<br>`+
         `diff180 = ${diff180.toFixed(1)}<br>`+
         `diff0 = ${diff0.toFixed(1)}<br>`+
-        `timer = ${timer === null ? "null" : "running"}`;*/
+        `timer = ${timer === null ? "null" : "running"}`;
 }
 
 function rotateCompass(wrapper, angle) {
@@ -324,13 +324,6 @@ function setCountdown(message, nextState){
 document.querySelector('.ripple-btn').addEventListener('click', async function (e) {
   const button = e.currentTarget;
 
-  // 初回クリック：8の字キャリブレーションを案内
-  if (!fig8_CaliDone && !fig8_PrmptShown) {
-    fig8_PrmptShown = true;
-    startFig8_Det();
-    return;
-  }
-
   if (!orientationInitialized) {
     const ok = await initOrientation();
     if (!ok) { return; }
@@ -344,7 +337,6 @@ document.querySelector('.ripple-btn').addEventListener('click', async function (
   baseOffset = rawHeading;
   displayHeading = 0;
   lastDiff = 0;
-  fig8_CaliDone = true;
   started = true;
 
   updateCompass();
