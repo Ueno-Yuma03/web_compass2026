@@ -431,10 +431,9 @@ BLEConnectBtn.addEventListener("click", async () => {
     BLE_Device.addEventListener("gattserverdisconnected", () => {
       BLE_Char = null;
       BLE_Status.textContent = "切断されました";
-      }
-    );
-    const server = await BLE_Device.gatt.connect();                             // Arduinoに接続
-    const service = await server.getPrimaryService(SERVICE_UUID);              // BLEサービスを取得
+    });
+    const server = await BLE_Device.gatt.connect();                   // Arduinoに接続
+    const service = await server.getPrimaryService(SERVICE_UUID);     // BLEサービスを取得
     BLE_Char = await service.getCharacteristic(CHARACTERISTIC_UUID);  // 角度データ用の特性を取得
     BLE_Status.textContent = "Arduinoに接続しました";
   }catch(error) {
@@ -442,3 +441,27 @@ BLEConnectBtn.addEventListener("click", async () => {
     console.error(error);
   }
 });
+
+let BLE_WriteBusy = false;    // BLE送信処理
+async function sendAngle() {
+  //接続されていない場合は送信しない
+  if (!BLE_Char) return;
+  if (!started) return;
+  //前回の送信が終わっていなければスキップ
+  if (BLE_WriteBusy) return;
+  
+  BLE_WriteBusy = true;
+  try{
+    //rawHeadingを文字列に変換
+    const data = new TextEncoder().encode(rawHeading.toFixed(1));
+    // Arduinoへ送信
+    await BLE_Char.writeValue(data);
+    BLESendStatus.textContent = "送信中: " + rawHeading.toFixed(1) + "°";
+  }catch(error) {
+    BLESendStatus.textContent = "送信エラー: " + error.message;
+    console.error(error);
+  }finally {
+    BLE_WriteBusy = false;
+  }
+}
+setInterval(sendAngle, 100);
